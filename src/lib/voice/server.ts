@@ -23,6 +23,18 @@ export function liveDeps(defer: OrchestratorDeps["defer"] = fireAndForget): Orch
   };
 }
 
+/** Browser-call routes: null if allowed, else the reason (MODE=live + PUBLIC_URL + VAPI_PUBLIC_KEY needed). */
+export function webGate(): string | null {
+  const { mode, webReady, webMissing } = readVoiceConfig();
+  if (mode !== "live") return "Set MODE=live in .env.local and restart npm run dev";
+  if (!webReady) return `Browser calls need these in .env.local: ${webMissing.join(", ")}`;
+  return null;
+}
+
+export function publicKey(): string {
+  return readVoiceConfig().config.publicKey;
+}
+
 /** Plays a whole live pipeline (intake -> advocate -> report) with fake webhooks through the real bus. */
 export async function runSimulation(scenario: SimScenario, pace = 1): Promise<{ callId: string }> {
   const today = todayIST();

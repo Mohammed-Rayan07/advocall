@@ -19,6 +19,8 @@ export interface VoiceConfigResult {
   config: VoiceConfig;
   missing: string[]; // env names still empty (live calls refuse to start until this is [])
   ready: boolean;
+  webMissing: string[]; // browser-call fallback needs far less: no Twilio, no phones
+  webReady: boolean;
   mode: "mock" | "live";
 }
 
@@ -65,7 +67,18 @@ export function readVoiceConfig(env: Record<string, string | undefined> = proces
   if (!config.companyPhone) missing.push("DEMO_COMPANY_PHONE");
   if (config.teamPhones.length < 2) missing.push("TEAM_PHONES");
 
-  return { config, missing, ready: missing.length === 0, mode: s("MODE") === "live" ? "live" : "mock" };
+  const webMissing: string[] = [];
+  if (!config.publicKey) webMissing.push("VAPI_PUBLIC_KEY");
+  if (!/^https:\/\//.test(config.publicUrl)) webMissing.push("PUBLIC_URL");
+
+  return {
+    config,
+    missing,
+    ready: missing.length === 0,
+    webMissing,
+    webReady: webMissing.length === 0,
+    mode: s("MODE") === "live" ? "live" : "mock",
+  };
 }
 
 export function webhookUrl(config: VoiceConfig): string {

@@ -29,6 +29,9 @@ async function main() {
   else bad("MODE is not live (set MODE=live in .env.local, then restart npm run dev)");
   if (missing.length === 0) ok("all required keys present");
   else bad(`missing: ${missing.join(", ")}`);
+  const { webMissing } = readVoiceConfig();
+  if (webMissing.length === 0) ok("browser fallback (/talk) has what it needs (PUBLIC_URL + VAPI_PUBLIC_KEY)");
+  else console.log(`  ⚠️  browser fallback (/talk) also needs: ${webMissing.join(", ")}`);
   if (config.webhookSecret) ok("VAPI_WEBHOOK_SECRET set (webhook rejects strangers)");
   else console.log("  ⚠️  VAPI_WEBHOOK_SECRET not set: anyone who finds the tunnel URL can post fake events");
   if (!config.apiKey) return;

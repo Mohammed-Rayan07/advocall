@@ -8,11 +8,13 @@ export const dynamic = "force-dynamic";
 const mask = (p: string) => (p.length > 6 ? `${p.slice(0, 3)}******${p.slice(-4)}` : p);
 
 export async function GET() {
-  const { config, missing, ready, mode } = readVoiceConfig();
+  const { config, missing, ready, mode, webReady, webMissing } = readVoiceConfig();
   return NextResponse.json({
     mode,
     ready,
     missing,
+    webReady,
+    webMissing,
     webhookUrl: config.publicUrl ? webhookUrl(config) : null,
     model: `${config.modelProvider}/${config.model}`,
     defaultLang: config.defaultLang,

@@ -7,14 +7,18 @@ import { RULES, addDays } from "@/lib/rules";
 import { normalizePhone, readVoiceConfig } from "@/lib/voice/config";
 import { parseVapiMessage } from "@/lib/voice/messages";
 import {
+  authorizeWebhook,
+  claimWebLeg,
   handleVapiWebhook,
   LiveCallError,
+  peekWebLegs,
+  startWebIntake,
   resetLive,
   startIntakeCall,
   type OrchestratorDeps,
   type WebhookResult,
 } from "@/lib/voice/orchestrator";
-import type { VapiAssistant } from "@/lib/voice/assistants";
+import { WEBHOOK_SECRET_HEADER, type VapiAssistant } from "@/lib/voice/assistants";
 import { SIM_COMPANY_PHONE, SIM_USER_PHONE, simConfig, simPersona, simulatedDialer, type SimScenario } from "@/lib/voice/simulate";
 import { upiScript } from "@/mock/scripts/upi";
 import { refusalScript } from "@/mock/scripts/refusal";
@@ -338,5 +342,67 @@ describe("orchestrator allowlist on every leg", () => {
     await handleVapiWebhook(deps, m({ type: "end-of-call-report", endedReason: "assistant-ended-call" }));
     while (deferred.length) await deferred.shift()!();
     expect(dialed).not.toContain("+14155550100");
+  });
+});
+
+describe("browser (web) channel: the no-Twilio fallback", () => {
+  async function runWeb(scenario: SimScenario, secret = "") {
+    const events: AdvocallEvent[] = [];
+    const deferred: (() => Promise<void>)[] = [];
+    const deps = makeDeps(events, deferred);
+    deps.config = { ...deps.config, webhookSecret: secret };
+    const queue: unknown[] = [];
+    const sim = simulatedDialer(scenario, TODAY, (body) => queue.push(body));
+    deps.dial = async () => {
+      throw new Error("web legs must never dial a phone");
+    };
+    const assistants: VapiAssistant[] = [];
+    const talk = async (a: VapiAssistant) => {
+      assistants.push(a);
+      await sim({ to: "web", assistant: a }); // the browser's Vapi SDK would now produce these webhooks
+    };
+    const drain = async () => {
+      while (queue.length || deferred.length) {
+        if (queue.length) await handleVapiWebhook(deps, queue.shift());
+        else await deferred.shift()!();
+      }
+    };
+    const p = simPersona(scenario);
+    const { assistant } = startWebIntake(deps, { lang: p.lang });
+    await talk(assistant);
+    await drain();
+    const company = claimWebLeg("company");
+    expect(company?.leg).toBe("advocate");
+    expect(claimWebLeg("company")).toBeNull(); // claim-once: a second tab gets nothing
+    await talk(company!.assistant);
+    await drain();
+    expect(peekWebLegs("customer").map((l) => l.leg)).toEqual(["report"]);
+    const report = claimWebLeg("customer")!;
+    await talk(report.assistant);
+    await drain();
+    return { events, assistants, deps };
+  }
+
+  it("emits the same event skeleton as the mock demos, with no phone dialled", async () => {
+    const promise = await runWeb("promise");
+    expect(skeleton(promise.events)).toEqual(mockSkeleton(upiScript));
+    resetLive();
+    const refusal = await runWeb("refusal");
+    expect(skeleton(refusal.events)).toEqual(mockSkeleton(refusalScript));
+    const view = Object.values(reduceEvents(promise.events))[0];
+    expect(view.calls.map((c) => c.to)).toEqual(["web", "web", "web"]);
+    expect(view.case.status).toBe("promised");
+  });
+
+  it("never sends the global webhook secret to a browser; each leg gets its own token", async () => {
+    const { assistants, deps } = await runWeb("promise", "GLOBAL-SECRET");
+    const tokens = assistants.map((a) => a.server.headers?.[WEBHOOK_SECRET_HEADER]);
+    expect(tokens.every((t) => t && t !== "GLOBAL-SECRET")).toBe(true);
+    expect(new Set(tokens).size).toBe(3);
+    const bodyFor = (a: VapiAssistant) => ({ message: { type: "status-update", status: "ended", call: { id: "x", assistant: { metadata: a.metadata } } } });
+    expect(authorizeWebhook(deps.config, tokens[0]!, bodyFor(assistants[0]))).toBe(true);
+    expect(authorizeWebhook(deps.config, tokens[0]!, bodyFor(assistants[1]))).toBe(false); // token of another call
+    expect(authorizeWebhook(deps.config, "GLOBAL-SECRET", bodyFor(assistants[1]))).toBe(true);
+    expect(authorizeWebhook(deps.config, null, bodyFor(assistants[1]))).toBe(false);
   });
 });

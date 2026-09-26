@@ -7,13 +7,15 @@ interface LiveStatus {
   mode: "mock" | "live";
   ready: boolean;
   missing: string[];
+  webReady: boolean;
+  webMissing: string[];
   webhookUrl: string | null;
   model: string;
   defaultLang: Lang;
   companyPhone: string | null;
   teamPhones: string[];
   webhookSecret: string;
-  calls: { callId: string; vapiCallId: string | null; leg: string; caseId: string | null; to: string; inProgress: boolean; ended: boolean; lastState: string | null }[];
+  calls: { callId: string; vapiCallId: string | null; leg: string; channel: string; caseId: string | null; to: string; inProgress: boolean; ended: boolean; lastState: string | null }[];
 }
 
 export function LivePanel() {
@@ -58,6 +60,18 @@ export function LivePanel() {
         Live voice · MODE={st?.mode ?? "?"} · {st ? (st.ready ? "READY" : `not ready, missing: ${st.missing.join(", ")}`) : "loading"}
       </h2>
       {st && (
+        <p className="mt-1 text-xs">
+          Browser fallback (/talk): {st.webReady ? <span className="text-good">READY</span> : <span className="text-warn">missing {st.webMissing.join(", ")}</span>} ·{" "}
+          <a className="text-accent underline" href="/talk?role=customer" target="_blank">
+            customer tab
+          </a>{" "}
+          ·{" "}
+          <a className="text-accent underline" href="/talk?role=company" target="_blank">
+            company tab
+          </a>
+        </p>
+      )}
+      {st && (
         <p className="mt-1 text-xs text-muted">
           webhook {st.webhookUrl ?? "-"} · model {st.model} · company {st.companyPhone ?? "-"} · team [{st.teamPhones.join(", ")}] · secret {st.webhookSecret}
         </p>
@@ -97,6 +111,7 @@ export function LivePanel() {
             <tr>
               <th className="text-left">call</th>
               <th className="text-left">leg</th>
+              <th className="text-left">via</th>
               <th className="text-left">case</th>
               <th className="text-left">to</th>
               <th className="text-left">state</th>
@@ -108,6 +123,7 @@ export function LivePanel() {
               <tr key={c.callId}>
                 <td>{c.callId}</td>
                 <td>{c.leg}</td>
+                <td>{c.channel}</td>
                 <td>{c.caseId ?? "-"}</td>
                 <td>{c.to}</td>
                 <td>{c.ended ? "ended" : c.inProgress ? `live ${c.lastState ?? ""}` : "dialing"}</td>

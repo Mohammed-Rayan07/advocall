@@ -59,6 +59,15 @@ All ✅ → go on. Any ❌ → paste the output to Claude Code (it contains no s
 5. Then it calls **you back** in Hindi with the result, and the SMS text appears on the dashboard.
 Watch everything live on http://localhost:3000 and /dev.
 
+## Plan B: browser calls (no Twilio, no phone line)
+If Twilio or India calling misbehaves, the **same live pipeline** runs with browsers as the phones.
+Needs only `MODE=live`, `PUBLIC_URL` and `VAPI_PUBLIC_KEY` (plus the tunnel). You don't need Twilio or `TEAM_PHONES`.
+1. **Customer:** your laptop → `http://localhost:3000/talk?role=customer` → pick Hindi → **Start talking** → tell the problem → confirm → hang up.
+2. **Company:** the "bank" teammate on a **second device** opens `https://<PUBLIC_URL>/talk?role=company` (**must be the https tunnel URL**: phones and other laptops can't use the mic on `http://10.x.x.x`). When it shows **📞 Incoming call**, press **Answer** and **speak first** ("Welcome to HDFC Bank…").
+3. When that call ends, the customer tab rings for the **report-back**: press **Answer**.
+4. The dashboard shows it all exactly like phone calls. Use **headphones**. Two roles on one laptop means echo.
+The SDK loads from a pinned CDN (`@vapi-ai/web@2.7.1`), so nobody runs `npm install`.
+
 ## What happens under the hood (for judge Q&A)
 | Step | Code |
 |---|---|

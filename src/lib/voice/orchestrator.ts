@@ -51,8 +51,14 @@ export interface OrchestratorDeps {
   log?: (msg: string) => void;
 }
 
+/** phone = Vapi dials a real number via Twilio. web = the leg is talked in a browser tab (/talk), no phone line needed. */
+export type Channel = "phone" | "web";
+export type WebRole = "customer" | "company";
+
 interface LiveCall {
   meta: AdvocallCallMeta;
+  channel: Channel;
+  webToken: string | null; // per-call webhook token for browser legs (the global secret never goes to a browser)
   vapiCallId: string | null;
   to: string;
   startedAt: string;
@@ -65,16 +71,26 @@ interface LiveCall {
 }
 
 interface LiveCase {
+  channel: Channel;
   case: Case;
   match: RuleMatch;
   commitment: Commitment | null;
   finished: boolean;
 }
 
+export interface PendingWebLeg {
+  callId: string;
+  leg: CallLeg;
+  role: WebRole;
+  caseId: string;
+  assistant: VapiAssistant;
+}
+
 interface LiveState {
   calls: Map<string, LiveCall>;
   byVapi: Map<string, string>;
   cases: Map<string, LiveCase>;
+  pendingWeb: Map<string, PendingWebLeg>; // browser legs waiting for someone to press "answer"
   callSeq: number;
   caseSeq: number;
 }
@@ -87,6 +103,7 @@ function state(): LiveState {
     calls: new Map(),
     byVapi: new Map(),
     cases: new Map(),
+    pendingWeb: new Map(),
     callSeq: 0,
     caseSeq: FIRST_LIVE_CASE,
   });
@@ -98,6 +115,7 @@ export function resetLive() {
   s.calls.clear();
   s.byVapi.clear();
   s.cases.clear();
+  s.pendingWeb.clear();
   s.caseSeq = FIRST_LIVE_CASE;
 }
 
@@ -105,6 +123,7 @@ export interface LiveCallSummary {
   callId: string;
   vapiCallId: string | null;
   leg: CallLeg;
+  channel: Channel;
   caseId: string | null;
   to: string;
   inProgress: boolean;
@@ -117,6 +136,7 @@ export function liveCalls(): LiveCallSummary[] {
     callId: c.meta.callId,
     vapiCallId: c.vapiCallId,
     leg: c.meta.leg,
+    channel: c.channel,
     caseId: c.meta.caseId,
     to: c.to,
     inProgress: c.inProgress,
@@ -125,11 +145,21 @@ export function liveCalls(): LiveCallSummary[] {
   }));
 }
 
-function newCall(deps: OrchestratorDeps, leg: CallLeg, caseId: string | null, lang: Lang, to: string, knownName: string | null): LiveCall {
+function newCall(
+  deps: OrchestratorDeps,
+  leg: CallLeg,
+  caseId: string | null,
+  lang: Lang,
+  to: string,
+  knownName: string | null,
+  channel: Channel = "phone",
+): LiveCall {
   const s = state();
   s.callSeq += 1;
   const call: LiveCall = {
     meta: { callId: `call_live_${s.callSeq}_${Date.now().toString(36)}`, leg, caseId, lang },
+    channel,
+    webToken: channel === "web" ? globalThis.crypto.randomUUID() : null,
     vapiCallId: null,
     to,
     startedAt: deps.now(),
@@ -151,6 +181,11 @@ export function isAllowedPhone(cfg: VoiceConfig, phone: string): boolean {
 }
 
 // ------------------------------------------------------------------ helpers
+
+/** Browser legs carry their own one-call token in the webhook header instead of the global secret. */
+function cfgFor(deps: OrchestratorDeps, call: LiveCall): VoiceConfig {
+  return call.webToken ? { ...deps.config, webhookSecret: call.webToken } : deps.config;
+}
 
 const log = (deps: OrchestratorDeps, msg: string) => (deps.log ?? console.log)(`[advocall/live] ${msg}`);
 
@@ -226,7 +261,7 @@ export async function startIntakeCall(
   const lang = opts.lang ?? deps.config.defaultLang;
   const name = opts.name?.trim() || null;
   const call = newCall(deps, "intake", null, lang, phone, name);
-  const assistant = intakeAssistant(deps.config, call.meta, deps.today(), name);
+  const assistant = intakeAssistant(cfgFor(deps, call), call.meta, deps.today(), name);
   try {
     const { id } = await deps.dial({ to: phone, customerName: name ?? undefined, assistant });
     link(call, id);
@@ -246,6 +281,13 @@ function link(call: LiveCall, vapiCallId: string | null) {
 
 async function dialLeg(deps: OrchestratorDeps, call: LiveCall, assistant: VapiAssistant, customerName?: string) {
   announce(deps, call, "ringing");
+  if (call.channel === "web") {
+    // Nobody to dial: park the leg until the browser on /talk presses "answer".
+    const role: WebRole = call.meta.leg === "advocate" ? "company" : "customer";
+    state().pendingWeb.set(call.meta.callId, { callId: call.meta.callId, leg: call.meta.leg, role, caseId: call.meta.caseId ?? "", assistant });
+    log(deps, `${call.meta.leg} ${call.meta.callId} waiting for the ${role} browser on /talk`);
+    return;
+  }
   if (!isAllowedPhone(deps.config, call.to)) {
     // Belt and braces: every dial re-checks the allowlist (a spoofed webhook must never make us call a stranger).
     log(deps, `${call.meta.leg} to ${call.to} blocked: not in TEAM_PHONES`);
@@ -263,20 +305,21 @@ async function dialLeg(deps: OrchestratorDeps, call: LiveCall, assistant: VapiAs
 }
 
 async function dialAdvocate(deps: OrchestratorDeps, lc: LiveCase) {
-  const call = newCall(deps, "advocate", lc.case.id, "en", deps.config.companyPhone, null);
+  const to = lc.channel === "web" ? "web" : deps.config.companyPhone;
+  const call = newCall(deps, "advocate", lc.case.id, "en", to, null, lc.channel);
   const brief = buildCallBrief(lc.case, lc.match);
-  await dialLeg(deps, call, advocateAssistant(deps.config, call.meta, lc.case, brief, deps.today()), lc.case.company);
+  await dialLeg(deps, call, advocateAssistant(cfgFor(deps, call), call.meta, lc.case, brief, deps.today()), lc.case.company);
 }
 
 async function dialReport(deps: OrchestratorDeps, lc: LiveCase) {
   const lang = lc.case.language;
-  if (!normalizePhone(lc.case.userPhone)) {
-    finishCase(deps, lc); // web intake: nobody to phone back, the dashboard + SMS text carry the update
+  if (lc.channel === "phone" && !normalizePhone(lc.case.userPhone)) {
+    finishCase(deps, lc); // no number to phone back: the dashboard + SMS text carry the update
     return;
   }
-  const call = newCall(deps, "report", lc.case.id, lang, lc.case.userPhone, lc.case.userName);
+  const call = newCall(deps, "report", lc.case.id, lang, lc.case.userPhone, lc.case.userName, lc.channel);
   const spoken = buildReportScript(viewOf(lc), lang);
-  await dialLeg(deps, call, reportAssistant(deps.config, call.meta, lc.case, lc.match, lc.commitment, spoken), lc.case.userName);
+  await dialLeg(deps, call, reportAssistant(cfgFor(deps, call), call.meta, lc.case, lc.match, lc.commitment, spoken), lc.case.userName);
 }
 
 /** After the report-back call: SMS text, and the regulator packet if the company gave nothing. */
@@ -395,7 +438,7 @@ function createCase(deps: OrchestratorDeps, call: LiveCall, args: Record<string,
   s.caseSeq += 1;
   const id = `A-${String(s.caseSeq).padStart(4, "0")}`;
   const c: Case = { ...input, id, status: "intake", createdAt: call.startedAt, updatedAt: deps.now() };
-  s.cases.set(id, { case: c, match, commitment: null, finished: false });
+  s.cases.set(id, { channel: call.channel, case: c, match, commitment: null, finished: false });
   call.meta.caseId = id;
 
   deps.emit({ type: "case.created", caseId: id, data: { case: { ...c } } });
@@ -457,6 +500,41 @@ function runTool(deps: OrchestratorDeps, call: LiveCall, tc: NormalizedToolCall)
   }
 }
 
+// ------------------------------------------------------------------ browser (web) legs
+
+/** /talk customer page: start an intake talked in the browser. Returns the assistant for the Vapi Web SDK. */
+export function startWebIntake(deps: OrchestratorDeps, opts: { name?: string | null; lang?: Lang }): { callId: string; assistant: VapiAssistant } {
+  const lang = opts.lang ?? deps.config.defaultLang;
+  const name = opts.name?.trim() || null;
+  const call = newCall(deps, "intake", null, lang, "web", name, "web");
+  log(deps, `web intake ${call.meta.callId} (${lang})`);
+  return { callId: call.meta.callId, assistant: intakeAssistant(cfgFor(deps, call), call.meta, deps.today(), name) };
+}
+
+/** Which browser legs are ringing, without claiming them (the /talk page polls this). */
+export function peekWebLegs(role: WebRole): { callId: string; leg: CallLeg; caseId: string }[] {
+  return [...state().pendingWeb.values()].filter((p) => p.role === role).map(({ callId, leg, caseId }) => ({ callId, leg, caseId }));
+}
+
+/** "Answer": hands the leg to exactly ONE browser (claim-once), so two tabs can never start the same call. */
+export function claimWebLeg(role: WebRole, callId?: string): PendingWebLeg | null {
+  const s = state();
+  const p = [...s.pendingWeb.values()].find((x) => x.role === role && (!callId || x.callId === callId));
+  if (!p) return null;
+  s.pendingWeb.delete(p.callId);
+  return p;
+}
+
+/** Webhook auth: the global secret (phone legs) or the one-call token of the browser leg named in the payload. */
+export function authorizeWebhook(cfg: VoiceConfig, header: string | null, body: unknown): boolean {
+  if (!cfg.webhookSecret) return true;
+  if (!header) return false;
+  if (header === cfg.webhookSecret) return true;
+  const meta = parseVapiMessage(body)?.call.meta;
+  const call = meta ? state().calls.get(meta.callId) : undefined;
+  return !!call?.webToken && call.webToken === header;
+}
+
 // ------------------------------------------------------------------ webhook entry
 
 function findCall(deps: OrchestratorDeps, info: VapiCallInfo): LiveCall | null {
@@ -464,7 +542,8 @@ function findCall(deps: OrchestratorDeps, info: VapiCallInfo): LiveCall | null {
   let call = (info.meta && s.calls.get(info.meta.callId)) || (info.vapiCallId && s.calls.get(s.byVapi.get(info.vapiCallId) ?? "")) || null;
   if (!call && info.meta) {
     // Server restarted mid-call, or a browser web call: adopt it from the metadata we put on the assistant.
-    call = newCall(deps, info.meta.leg, info.meta.caseId, info.meta.lang, normalizePhone(info.customerNumber ?? "") || "web", null);
+    const phone = normalizePhone(info.customerNumber ?? "");
+    call = newCall(deps, info.meta.leg, info.meta.caseId, info.meta.lang, phone || "web", null, phone ? "phone" : "web");
     s.calls.delete(call.meta.callId);
     call.meta = { ...info.meta };
     s.calls.set(call.meta.callId, call);

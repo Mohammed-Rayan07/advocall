@@ -21,16 +21,55 @@ const en = {
   connected: "Live",
   disconnected: "Offline",
   noCases: "No cases yet. Call Advocall or run a demo.",
-  // TODO(Yaso): add any keys Vaishnavi asks for (add to ALL languages)
 };
 
 export type StringKey = keyof typeof en;
 
-export const STRINGS: Record<Lang, Record<StringKey, string>> = {
-  en,
-  hi: { ...en }, // TODO(Yaso): translate every value to Hindi
-  kn: { ...en }, // TODO(Yaso): translate every value to Kannada
+const hi: Record<StringKey, string> = {
+  appName: "Advocall",
+  tagline: "होल्ड पर आपका AI वकील, ताकि आपको इंतज़ार न करना पड़े",
+  liveCases: "लाइव केस",
+  atStake: "दांव पर राशि",
+  recovered: "वापस मिला",
+  ruleApplied: "लागू नियम",
+  deadline: "समय सीमा",
+  daysLate: "दिन की देरी",
+  compensation: "बकाया मुआवज़ा",
+  ticket: "शिकायत नंबर",
+  promisedBy: "वादा की गई तारीख",
+  transcript: "लाइव बातचीत",
+  timeline: "टाइमलाइन",
+  escalate: "समय सीमा निकल गई: आगे शिकायत करें",
+  startDemo: "डेमो चलाएँ",
+  reset: "रीसेट",
+  connected: "लाइव",
+  disconnected: "ऑफ़लाइन",
+  noCases: "अभी कोई केस नहीं। Advocall को कॉल करें या डेमो चलाएँ।",
 };
+
+const kn: Record<StringKey, string> = {
+  appName: "Advocall",
+  tagline: "ಹೋಲ್ಡ್‌ನಲ್ಲಿ ನಿಮ್ಮ AI ವಕೀಲ, ನೀವು ಕಾಯಬೇಕಾಗಿಲ್ಲ",
+  liveCases: "ಲೈವ್ ಪ್ರಕರಣಗಳು",
+  atStake: "ಅಪಾಯದಲ್ಲಿರುವ ಮೊತ್ತ",
+  recovered: "ಮರಳಿ ಪಡೆದದ್ದು",
+  ruleApplied: "ಅನ್ವಯಿಸಿದ ನಿಯಮ",
+  deadline: "ಗಡುವು",
+  daysLate: "ದಿನಗಳ ವಿಳಂಬ",
+  compensation: "ಬಾಕಿ ಪರಿಹಾರ",
+  ticket: "ದೂರು ಸಂಖ್ಯೆ",
+  promisedBy: "ಭರವಸೆ ನೀಡಿದ ದಿನಾಂಕ",
+  transcript: "ಲೈವ್ ಸಂಭಾಷಣೆ",
+  timeline: "ಟೈಮ್‌ಲೈನ್",
+  escalate: "ಗಡುವು ಮೀರಿದೆ: ಮುಂದೆ ದೂರು ನೀಡಿ",
+  startDemo: "ಡೆಮೊ ಪ್ರಾರಂಭಿಸಿ",
+  reset: "ಮರುಹೊಂದಿಸಿ",
+  connected: "ಲೈವ್",
+  disconnected: "ಆಫ್‌ಲೈನ್",
+  noCases: "ಇನ್ನೂ ಯಾವುದೇ ಪ್ರಕರಣಗಳಿಲ್ಲ. Advocall ಗೆ ಕರೆ ಮಾಡಿ ಅಥವಾ ಡೆಮೊ ಪ್ರಾರಂಭಿಸಿ.",
+};
+
+export const STRINGS: Record<Lang, Record<StringKey, string>> = { en, hi, kn };
 
 export function t(key: StringKey, lang: Lang = "en"): string {
   return STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;

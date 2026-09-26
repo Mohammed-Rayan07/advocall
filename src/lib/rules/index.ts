@@ -4,3 +4,4 @@ export { RULES } from "./data";
 export { addDays, daysBetween, isValidYmd } from "./dates";
 export { matchRule } from "./engine";
 export { buildEscalationPacket } from "./escalation";
+export { buildCallBrief, type CallBrief } from "./brief";

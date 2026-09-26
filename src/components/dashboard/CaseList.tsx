@@ -36,7 +36,7 @@ export default function CaseList({
         <span className="text-xs font-semibold uppercase tracking-wider text-muted">
           Cases ({cases.length})
         </span>
-        <span className="text-[11px] text-muted">Newest first</span>
+        <span className="text-xs text-muted">Newest first</span>
       </div>
 
       {/* Horizontal scroll row on mobile (<1024px), vertical list on desktop (>=1024px) */}
@@ -47,7 +47,8 @@ export default function CaseList({
             <button
               key={c.case.id}
               onClick={() => onSelect(c.case.id)}
-              className={`min-w-[260px] sm:min-w-[280px] lg:min-w-0 w-full text-left rounded-card p-3.5 border transition-all cursor-pointer ${
+              aria-label={`Select case ${c.case.id} for ${c.case.company}`}
+              className={`min-w-[260px] sm:min-w-[280px] lg:min-w-0 w-full text-left rounded-card p-3.5 border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                 isSelected
                   ? "bg-surface border-accent shadow-md shadow-accent/5 ring-1 ring-accent/30"
                   : "bg-surface border-line hover:border-line/80 hover:bg-surface-2/40"
@@ -73,7 +74,7 @@ export default function CaseList({
                 <span className="font-mono font-bold text-money tabular-nums">
                   {formatINR(c.case.amountPaise)}
                 </span>
-                <span className="text-muted text-[11px]">
+                <span className="text-muted text-xs tabular-nums">
                   {formatDate(c.case.incidentDate)}
                 </span>
               </div>

@@ -68,7 +68,7 @@ export default function EscalationPanel({
               <h3 className="text-xs font-semibold uppercase tracking-wider text-ink">
                 Regulator Escalation
               </h3>
-              <span className="text-[11px] text-muted">
+              <span className="text-xs text-muted">
                 Statutory complaint generator
               </span>
             </div>
@@ -83,7 +83,8 @@ export default function EscalationPanel({
           <button
             onClick={handleEscalate}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg bg-warn/15 border border-warn/40 px-4 py-2.5 text-xs font-semibold text-warn transition hover:bg-warn/25 active:scale-95 disabled:opacity-50 cursor-pointer"
+            aria-label="Escalate missed deadline complaint to regulator"
+            className="inline-flex items-center gap-2 rounded-lg bg-warn/15 border border-warn/40 px-4 py-2.5 text-xs font-semibold text-warn transition hover:bg-warn/25 active:scale-95 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warn focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             {loading ? (
               <>
@@ -111,7 +112,7 @@ export default function EscalationPanel({
             <AlertTriangle className="h-4 w-4" />
           </div>
           <div>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-warn font-semibold">
+            <span className="text-xs font-mono uppercase tracking-wider text-warn font-semibold">
               Escalation Packet Ready
             </span>
             <h3 className="text-sm font-bold text-ink">
@@ -126,7 +127,8 @@ export default function EscalationPanel({
               href={escalation.channelUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 px-2.5 py-1 text-xs text-accent hover:border-accent/40 cursor-pointer"
+              aria-label={`Open online portal for ${escalation.to}`}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 px-2.5 py-1 text-xs text-accent hover:border-accent/40 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             >
               <span>Portal</span>
               <ExternalLink className="h-3.5 w-3.5" />
@@ -135,10 +137,11 @@ export default function EscalationPanel({
           {escalation.phone && (
             <a
               href={`tel:${escalation.phone}`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 px-2.5 py-1 text-xs text-ink hover:text-accent cursor-pointer"
+              aria-label={`Call helpline: ${escalation.phone}`}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 px-2.5 py-1 text-xs text-ink hover:text-accent cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             >
-              <Phone className="h-3 w-3" />
-              <span>{escalation.phone}</span>
+              <Phone className="h-3.5 w-3.5" />
+              <span className="font-mono tabular-nums">{escalation.phone}</span>
             </a>
           )}
         </div>
@@ -147,7 +150,7 @@ export default function EscalationPanel({
       {/* Subject Line */}
       {escalation.subject && (
         <div className="rounded-lg bg-surface-2 border border-line p-3 text-xs">
-          <span className="text-muted block text-[11px] font-semibold uppercase mb-0.5">
+          <span className="text-muted block text-xs font-semibold uppercase mb-0.5">
             Subject
           </span>
           <span className="text-ink font-medium leading-relaxed">
@@ -159,7 +162,7 @@ export default function EscalationPanel({
       {/* Key Facts Table */}
       {escalation.facts && escalation.facts.length > 0 && (
         <div className="space-y-1.5">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-muted flex items-center gap-1.5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted flex items-center gap-1.5">
             <FileText className="h-3.5 w-3.5" />
             <span>Key Facts Submitted</span>
           </div>
@@ -172,10 +175,10 @@ export default function EscalationPanel({
                     key={idx}
                     className="border-b border-line/60 last:border-b-0 hover:bg-surface/50"
                   >
-                    <td className="py-1.5 px-3 font-medium text-muted w-1/3">
+                    <td className="py-2 px-3 font-medium text-muted w-1/3">
                       {label}
                     </td>
-                    <td className="py-1.5 px-3 font-mono text-ink">
+                    <td className="py-2 px-3 font-mono text-ink tabular-nums">
                       {val}
                     </td>
                   </tr>
@@ -189,12 +192,13 @@ export default function EscalationPanel({
       {/* Letter Body & Copy Button */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted">
             Formal Complaint Letter
           </span>
           <button
             onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 px-2.5 py-1 text-xs font-medium text-ink transition hover:border-accent hover:text-accent cursor-pointer active:scale-95"
+            aria-label="Copy complaint letter to clipboard"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink transition hover:border-accent hover:text-accent cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
           >
             {copied ? (
               <>
@@ -210,7 +214,7 @@ export default function EscalationPanel({
           </button>
         </div>
 
-        <pre className="max-h-56 overflow-y-auto rounded-lg bg-surface-2 border border-line p-3 font-mono text-xs whitespace-pre-wrap leading-relaxed text-ink scrollbar-thin scrollbar-thumb-line">
+        <pre className="max-h-56 overflow-y-auto rounded-lg bg-surface-2 border border-line p-3.5 font-mono text-xs whitespace-pre-wrap leading-relaxed text-ink scrollbar-thin scrollbar-thumb-line">
           {escalation.body}
         </pre>
       </div>

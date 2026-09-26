@@ -65,7 +65,8 @@ export default function RuleCard({
             href={match.rule.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs text-accent hover:underline cursor-pointer group"
+            aria-label={`Open source document: ${match.rule.sourceName}`}
+            className="inline-flex items-center gap-1.5 text-xs text-accent hover:underline cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded p-0.5"
           >
             <span className="truncate max-w-[200px] sm:max-w-[280px]">
               {match.rule.sourceName}
@@ -93,7 +94,7 @@ export default function RuleCard({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
         {/* Deadline */}
         <div className="rounded-lg border border-line bg-surface-2 p-2.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-[11px] text-muted mb-1">
+          <div className="flex items-center justify-between text-xs text-muted mb-1">
             <span>{t("deadline", lang)}</span>
             <Clock className="h-3.5 w-3.5 text-muted" />
           </div>
@@ -104,7 +105,7 @@ export default function RuleCard({
 
         {/* Days Late */}
         <div className="rounded-lg border border-line bg-surface-2 p-2.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-[11px] text-muted mb-1">
+          <div className="flex items-center justify-between text-xs text-muted mb-1">
             <span>{t("daysLate", lang)}</span>
             <AlertTriangle
               className={`h-3.5 w-3.5 ${
@@ -123,7 +124,7 @@ export default function RuleCard({
 
         {/* Compensation Owed */}
         <div className="rounded-lg border border-line bg-surface-2 p-2.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-[11px] text-muted mb-1">
+          <div className="flex items-center justify-between text-xs text-muted mb-1">
             <span>{t("compensation", lang)}</span>
             <Coins className="h-3.5 w-3.5 text-money" />
           </div>
@@ -134,7 +135,7 @@ export default function RuleCard({
 
         {/* Total at Stake */}
         <div className="rounded-lg border border-accent/30 bg-accent/5 p-2.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-[11px] text-accent mb-1 font-medium">
+          <div className="flex items-center justify-between text-xs text-accent mb-1 font-medium">
             <span>{t("atStake", lang)}</span>
             <ShieldCheck className="h-3.5 w-3.5 text-accent" />
           </div>
@@ -146,13 +147,13 @@ export default function RuleCard({
 
       {/* Badges footer */}
       <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-line/60">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 border border-accent/30 px-2.5 py-1 text-[11px] font-medium text-accent">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 border border-accent/30 px-3 py-1 text-xs font-medium text-accent">
           <ShieldCheck className="h-3.5 w-3.5" />
           <span>Computed by rights engine, not by AI</span>
         </span>
 
         {!match.claimable && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 border border-line px-2.5 py-1 text-[11px] font-medium text-muted">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 border border-line px-3 py-1 text-xs font-medium text-muted">
             <Info className="h-3.5 w-3.5" />
             <span>No legal claim, standard complaint only</span>
           </span>

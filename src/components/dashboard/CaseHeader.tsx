@@ -14,11 +14,11 @@ export default function CaseHeader({ view }: CaseHeaderProps) {
   const { case: c } = view;
 
   return (
-    <div className="rounded-card border border-line bg-surface p-5 transition-all">
+    <div className="rounded-card border border-line bg-surface p-5 transition-all shadow-sm">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
         <div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-mono text-xs font-bold text-accent bg-accent/10 border border-accent/30 px-2 py-0.5 rounded">
+            <span className="font-mono text-xs font-bold text-accent bg-accent/10 border border-accent/30 px-2.5 py-0.5 rounded">
               {c.id}
             </span>
             <h2 className="text-xl font-bold tracking-tight text-ink">
@@ -27,7 +27,7 @@ export default function CaseHeader({ view }: CaseHeaderProps) {
             <StatusBadge status={c.status} />
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5 text-xs text-muted">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2.5 text-xs text-muted">
             <span className="inline-flex items-center gap-1.5">
               <User className="h-3.5 w-3.5 text-muted" />
               <span className="text-ink font-medium">{c.userName}</span>
@@ -35,7 +35,7 @@ export default function CaseHeader({ view }: CaseHeaderProps) {
 
             <span className="inline-flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 text-muted" />
-              <span>Incident: {formatDate(c.incidentDate)}</span>
+              <span>Incident: <span className="tabular-nums">{formatDate(c.incidentDate)}</span></span>
             </span>
 
             <span className="inline-flex items-center gap-1.5">
@@ -48,7 +48,7 @@ export default function CaseHeader({ view }: CaseHeaderProps) {
 
             <span className="inline-flex items-center gap-1.5">
               <Globe2 className="h-3.5 w-3.5 text-muted" />
-              <span className="rounded bg-surface-2 px-1.5 py-0.5 text-[11px] font-medium text-accent border border-line uppercase">
+              <span className="rounded bg-surface-2 px-2 py-0.5 text-xs font-medium text-accent border border-line uppercase">
                 {c.language}
               </span>
             </span>
@@ -56,7 +56,7 @@ export default function CaseHeader({ view }: CaseHeaderProps) {
         </div>
 
         <div className="flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-line/50 pt-2 sm:pt-0">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted">
             Amount Disputed
           </div>
           <div className="font-mono text-3xl font-bold text-money tracking-tight tabular-nums">

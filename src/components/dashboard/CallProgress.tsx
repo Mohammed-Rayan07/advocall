@@ -91,7 +91,7 @@ export default function CallProgress({
             <h3 className="text-sm font-bold text-ink">
               Advocate Call Progress
             </h3>
-            <span className="text-[11px] text-muted">
+            <span className="text-xs text-muted">
               Autonomous IVR &amp; negotiation state machine
             </span>
           </div>
@@ -109,12 +109,12 @@ export default function CallProgress({
               ) : call.status === "ended" ? (
                 <>
                   <CheckCircle2 className="h-3.5 w-3.5 text-good" />
-                  <span className="text-good">COMPLETED</span>
+                  <span className="text-good font-semibold">COMPLETED</span>
                 </>
               ) : (
                 <>
                   <Clock className="h-3.5 w-3.5 text-muted" />
-                  <span className="text-muted uppercase">{call.status}</span>
+                  <span className="text-muted uppercase font-semibold">{call.status}</span>
                 </>
               )}
               <span className="text-line">|</span>
@@ -128,7 +128,6 @@ export default function CallProgress({
 
       {/* 9-Step Stepper */}
       <div className="relative pt-2">
-        {/* Step dots and labels */}
         <div className="grid grid-cols-3 sm:grid-cols-9 gap-2 relative z-10">
           {ADVOCATE_STATES.map((step, idx) => {
             const isCurrent = idx === currentIndex && call?.status === "in_progress";
@@ -139,7 +138,7 @@ export default function CallProgress({
             return (
               <div key={step} className="flex flex-col items-center text-center">
                 <div
-                  className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-mono font-bold transition-all ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-mono font-bold transition-all ${
                     isCurrent
                       ? "bg-accent text-bg ring-4 ring-accent/25 shadow-lg shadow-accent/20 scale-110"
                       : isDone
@@ -155,7 +154,7 @@ export default function CallProgress({
                 </div>
 
                 <span
-                  className={`mt-2 text-[10px] tracking-tight leading-tight line-clamp-1 ${
+                  className={`mt-2 text-xs tracking-tight leading-tight line-clamp-1 ${
                     isCurrent
                       ? "text-accent font-bold"
                       : isDone
@@ -175,8 +174,8 @@ export default function CallProgress({
       <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-line/60 text-xs">
         <div className="flex items-center gap-2">
           {/* Intake Call Chip */}
-          <span className="inline-flex items-center gap-1.5 rounded-md bg-surface-2 border border-line px-2.5 py-1 text-[11px]">
-            <Phone className="h-3 w-3 text-muted" />
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-surface-2 border border-line px-2.5 py-1 text-xs">
+            <Phone className="h-3.5 w-3.5 text-muted" />
             <span className="text-muted">Intake Call:</span>
             {intakeCall ? (
               <span className="font-semibold text-good">Done</span>
@@ -186,8 +185,8 @@ export default function CallProgress({
           </span>
 
           {/* Report Call Chip */}
-          <span className="inline-flex items-center gap-1.5 rounded-md bg-surface-2 border border-line px-2.5 py-1 text-[11px]">
-            <Activity className="h-3 w-3 text-muted" />
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-surface-2 border border-line px-2.5 py-1 text-xs">
+            <Activity className="h-3.5 w-3.5 text-muted" />
             <span className="text-muted">Report-back:</span>
             {reportCall ? (
               reportCall.status === "in_progress" ? (
@@ -207,7 +206,7 @@ export default function CallProgress({
         </div>
 
         {call?.outcome && (
-          <span className="text-[11px] text-muted italic">
+          <span className="text-xs text-muted italic">
             Outcome: <span className="text-ink not-italic">{call.outcome}</span>
           </span>
         )}

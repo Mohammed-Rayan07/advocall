@@ -22,7 +22,7 @@ export default function SmsPreview({ messages }: SmsPreviewProps) {
           </h3>
         </div>
         {lastMessage && (
-          <span className="font-mono text-[11px] text-muted">
+          <span className="font-mono text-xs text-muted tabular-nums">
             {formatTime(lastMessage.at)}
           </span>
         )}
@@ -32,19 +32,19 @@ export default function SmsPreview({ messages }: SmsPreviewProps) {
         <div className="flex flex-col items-center justify-center py-5 text-center text-muted">
           <MessageSquare className="h-6 w-6 text-line mb-1.5" />
           <p className="text-xs">Awaiting SMS outcome dispatch</p>
-          <p className="text-[11px] text-muted/70 mt-0.5">
+          <p className="text-xs text-muted/70 mt-0.5">
             Advocall automatically texts the customer with the ticket number and promised date.
           </p>
         </div>
       ) : (
         <div className="rounded-xl border border-accent-2/30 bg-surface-2/80 p-3.5 space-y-2">
           {/* Notification Header */}
-          <div className="flex items-center justify-between text-[11px] text-muted">
+          <div className="flex items-center justify-between text-xs text-muted">
             <span className="font-mono font-medium text-accent-2 flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-accent-2" />
-              <span>Advocall SMS · {lastMessage.to}</span>
+              <span>Advocall SMS · <span className="tabular-nums">{lastMessage.to}</span></span>
             </span>
-            <span className="rounded bg-surface px-1.5 py-0.5 font-mono text-[10px] uppercase text-accent border border-line">
+            <span className="rounded bg-surface px-2 py-0.5 font-mono text-xs uppercase text-accent border border-line">
               {lastMessage.language}
             </span>
           </div>
@@ -55,7 +55,7 @@ export default function SmsPreview({ messages }: SmsPreviewProps) {
           </div>
 
           {/* Delivery receipt status */}
-          <div className="flex items-center justify-end gap-1 text-[11px] text-good font-medium pt-0.5">
+          <div className="flex items-center justify-end gap-1 text-xs text-good font-medium pt-0.5">
             <CheckCheck className="h-3.5 w-3.5" />
             <span>Delivered to handset</span>
           </div>

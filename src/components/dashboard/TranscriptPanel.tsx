@@ -55,15 +55,15 @@ export default function TranscriptPanel({
           <h3 className="text-xs font-semibold uppercase tracking-wider text-ink">
             {t("transcript", lang)}
           </h3>
-          <span className="font-mono text-[11px] text-muted bg-surface-2 px-1.5 py-0.5 rounded border border-line">
+          <span className="font-mono text-xs text-muted bg-surface-2 px-2 py-0.5 rounded border border-line tabular-nums">
             {lines.length} lines
           </span>
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-2.5 text-[10px] text-muted hidden sm:flex">
+        <div className="flex items-center gap-2.5 text-xs text-muted hidden sm:flex">
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-accent" />
+            <span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_6px_#22d3ee]" />
             <span>Advocall (AI)</span>
           </span>
           <span className="flex items-center gap-1">
@@ -86,7 +86,7 @@ export default function TranscriptPanel({
           <div className="flex flex-col items-center justify-center h-full text-center p-6 text-muted">
             <MessageSquare className="h-8 w-8 text-line mb-2" />
             <p className="text-xs">No conversation dialogue yet.</p>
-            <p className="text-[11px] text-muted/70 mt-1">
+            <p className="text-xs text-muted/70 mt-1">
               Start a demo or place a live call to watch transcripts stream in real-time.
             </p>
           </div>
@@ -105,7 +105,7 @@ export default function TranscriptPanel({
                   {showDivider && (
                     <div className="flex items-center gap-3 my-3">
                       <div className="h-px flex-1 bg-line" />
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-muted px-2.5 py-0.5 rounded-full bg-surface-2 border border-line">
+                      <span className="text-xs font-mono uppercase tracking-wider text-muted px-2.5 py-0.5 rounded-full bg-surface-2 border border-line">
                         {getCallDivider(line.callId)}
                       </span>
                       <div className="h-px flex-1 bg-line" />
@@ -145,7 +145,7 @@ export default function TranscriptPanel({
                     {/* Bubble Content */}
                     <div className="flex flex-col">
                       <div
-                        className={`flex items-center gap-2 mb-1 px-1 text-[10px] font-mono text-muted ${
+                        className={`flex items-center gap-2 mb-1 px-1 text-xs font-mono text-muted ${
                           isAgent ? "justify-start" : "justify-end"
                         }`}
                       >

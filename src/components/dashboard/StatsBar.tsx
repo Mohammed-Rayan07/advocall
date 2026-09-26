@@ -109,11 +109,11 @@ export default function StatsBar({ cases, lang = "en" }: StatsBarProps) {
             className="flex flex-col justify-between rounded-card border border-line bg-surface p-4 transition-all hover:border-line/80 shadow-sm"
           >
             <div className="flex items-center justify-between text-xs text-muted mb-2">
-              <span className="font-medium tracking-wide uppercase text-[11px]">
+              <span className="font-semibold tracking-wide uppercase text-xs">
                 {stat.label}
               </span>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-muted hidden sm:inline-block">
+                <span className="text-xs text-muted/80 hidden sm:inline-block">
                   {stat.badge}
                 </span>
                 <Icon className={`h-4 w-4 ${stat.iconColor}`} />

@@ -27,12 +27,12 @@ export default function CommitmentCard({
               <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">
                 Formal Commitment
               </h3>
-              <span className="text-[11px] text-muted">
+              <span className="text-xs text-muted">
                 Official grievance reference
               </span>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 border border-line px-2.5 py-0.5 text-[11px] text-muted font-mono">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 border border-line px-2.5 py-0.5 text-xs text-muted font-mono">
             <span className="h-1.5 w-1.5 rounded-full bg-muted animate-pulse" />
             Awaiting
           </span>
@@ -41,7 +41,7 @@ export default function CommitmentCard({
         <div className="flex flex-col items-center justify-center py-6 text-center text-muted">
           <Sparkles className="h-8 w-8 text-line mb-2 animate-pulse" />
           <p className="text-xs font-medium">Waiting for ticket number…</p>
-          <p className="text-[11px] text-muted/70 max-w-xs mt-1">
+          <p className="text-xs text-muted/70 max-w-xs mt-1">
             Advocall will insist on registering a formal complaint and capture the reference number.
           </p>
         </div>
@@ -70,24 +70,24 @@ export default function CommitmentCard({
             <h3 className="text-xs font-semibold uppercase tracking-wider text-good">
               Formal Commitment Captured
             </h3>
-            <span className="text-[11px] text-muted">
+            <span className="text-xs text-muted">
               Official company reference
             </span>
           </div>
         </div>
 
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-good/20 border border-good/40 px-2.5 py-0.5 text-[11px] font-semibold text-good">
-          <CheckCircle2 className="h-3 w-3" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-good/20 border border-good/40 px-2.5 py-0.5 text-xs font-semibold text-good">
+          <CheckCircle2 className="h-3.5 w-3.5" />
           Acknowledged
         </span>
       </div>
 
       {/* Hero Ticket Number */}
       <div className="rounded-xl bg-surface/90 border border-good/30 p-4 text-center">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-1">
+        <div className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
           {t("ticket", lang)}
         </div>
-        <div className="font-mono text-3xl sm:text-4xl font-black tracking-widest text-good select-all">
+        <div className="font-mono text-3xl sm:text-4xl font-black tracking-widest text-good select-all tabular-nums">
           {commitment.ticketNo}
         </div>
       </div>
@@ -100,7 +100,7 @@ export default function CommitmentCard({
             <Clock className="h-3.5 w-3.5 text-muted" />
             <span>{t("promisedBy", lang)}:</span>
           </span>
-          <span className="font-mono font-bold text-ink">
+          <span className="font-mono font-bold text-ink tabular-nums">
             {commitment.promisedBy ? formatDate(commitment.promisedBy) : "Immediate"}
           </span>
         </div>
@@ -130,7 +130,7 @@ export default function CommitmentCard({
 
       {/* Confirmed Readback Badge */}
       {commitment.confirmed && (
-        <div className="flex items-center justify-center gap-1.5 text-[11px] text-good font-medium pt-1">
+        <div className="flex items-center justify-center gap-1.5 text-xs text-good font-medium pt-1">
           <CheckCircle2 className="h-3.5 w-3.5" />
           <span>Ticket read back &amp; verified with company representative</span>
         </div>

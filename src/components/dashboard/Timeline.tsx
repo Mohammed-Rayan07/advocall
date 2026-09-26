@@ -139,7 +139,7 @@ export default function Timeline({ events, lang = "en" }: TimelineProps) {
             {t("timeline", lang)}
           </h3>
         </div>
-        <span className="font-mono text-[11px] text-muted">
+        <span className="font-mono text-xs text-muted tabular-nums">
           {meaningfulEvents.length} events
         </span>
       </div>
@@ -170,12 +170,12 @@ export default function Timeline({ events, lang = "en" }: TimelineProps) {
                     <span className="font-semibold text-ink truncate">
                       {details.title}
                     </span>
-                    <span className="font-mono text-[10px] text-muted shrink-0 tabular-nums">
+                    <span className="font-mono text-xs text-muted shrink-0 tabular-nums">
                       {formatTime(event.at)}
                     </span>
                   </div>
                   {details.desc && (
-                    <p className="text-[11px] text-muted truncate mt-0.5">
+                    <p className="text-xs text-muted truncate mt-0.5">
                       {details.desc}
                     </p>
                   )}

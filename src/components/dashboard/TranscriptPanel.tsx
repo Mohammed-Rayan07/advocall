@@ -30,9 +30,17 @@ export default function TranscriptPanel({
 
   const getCallDivider = (callId: string) => {
     const call = calls.find((c) => c.id === callId);
-    if (!call) return "Call Session";
+    const leg =
+      call?.leg ??
+      (callId.includes("intake")
+        ? "intake"
+        : callId.includes("adv")
+        ? "advocate"
+        : callId.includes("report")
+        ? "report"
+        : "session");
 
-    switch (call.leg) {
+    switch (leg) {
       case "intake":
         return "Intake Call · User Intake";
       case "advocate":
@@ -164,7 +172,7 @@ export default function TranscriptPanel({
                       </div>
 
                       <div
-                        className={`rounded-2xl p-3 text-xs leading-[1.6] shadow-sm ${
+                        className={`rounded-2xl p-3 text-xs leading-[1.6] shadow-sm break-words [overflow-wrap:anywhere] ${
                           isAgent
                             ? "rounded-tl-xs bg-accent/10 border border-accent/25 text-ink"
                             : isCompany

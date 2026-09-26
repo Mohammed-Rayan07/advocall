@@ -78,6 +78,7 @@ export default function Dashboard() {
                   />
                   <CommitmentCard
                     commitment={selectedCase.commitment}
+                    caseStatus={selectedCase.case.status}
                     lang={lang}
                   />
                   <EscalationPanel view={selectedCase} lang={lang} />

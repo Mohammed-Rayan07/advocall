@@ -26,7 +26,7 @@
 **Answer:** The texts the user hears and reads (report-back call, SMS, UI labels) were written and reviewed by our team (Yaso), not machine-translated word for word. Amounts use Indian formatting (₹4,500) and dates are spoken as dates.
 
 ### 8. "What does a call cost?"
-**Answer:** Roughly **₹15–40 for a 3-minute call** at today's voice-AI rates (speech-to-text + LLM + text-to-speech + telephony). That's an estimate; the exact number depends on the provider. A single case usually involves ₹1,000–₹10,000, plus ₹100/day compensation for late UPI reversals.
+**Answer:** Roughly **₹15–40 for a 3-minute call** at today's voice-AI rates (speech-to-text + LLM + text-to-speech + telephony). That's an estimate (not yet measured): **replace it with the real per-call cost the Vapi dashboard shows after our first live call.** A single case usually involves ₹1,000–₹10,000, plus ₹100/day compensation for late UPI reversals.
 
 ### 9. "Why India?"
 **Answer:** UPI handles billions of transactions every month (check NPCI's latest monthly figure before the pitch), failed debits are common, and India has **clear, written turnaround rules with a daily compensation amount**. That makes the rights computable, which is exactly what our engine does.

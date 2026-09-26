@@ -24,7 +24,8 @@ In the terminal, inside my advocall-v2 folder, step by step, show me each result
 7. npm test                          (must say 78 passed)
 Then restart npm run dev and open http://localhost:3000.
 ```
-If step 4 errors, delete the `advocall-v2` folder and clone again exactly like the afternoon Part A.
+🚫 **Never use `git push --force` (or `-f`).** If a pull or push is rejected, **don't retry and don't let the AI "fix" it**. Delete the `advocall-v2` folder and clone again exactly like the afternoon Part A. (A force-push would silently throw away the merge fixes in your folders.)
+If step 4 errors, same thing: delete `advocall-v2` and re-clone.
 
 **Agastya:** your interrupted Opus session may have left changes on your laptop. Step 1 stashes them. Do **not** re-apply them; the audit is done in `main`.
 
@@ -39,7 +40,7 @@ Read AGENTS.md and team/03_EVENING.md. Do NOT add features. Only fix visual bugs
 2. Fix only what is inside src/components/**. Labels come from t("key", lang) in src/content/strings.ts. If a label is wrong,
    DON'T edit strings.ts: write it in team/VAISHNAVI_REQUESTS.md.
 3. After every fix: npm run typecheck && npm run lint && npm test, then the SAVE STEP (git status → restore files outside my
-   folders → commit "vaishnavi: evening fix N" → git push origin vaishnavi).
+   folders → commit "vaishnavi: evening fix N" → git push origin vaishnavi). NEVER use --force; if a push is rejected, stop and tell me.
 ```
 **Non-code (main job now):** finish the deck, using screenshots of the **merged** dashboard in Present mode (UPI demo: the ticket card + transcript). Put the final PDF link in `team/VAISHNAVI_STATUS.md`.
 
@@ -54,7 +55,7 @@ Read AGENTS.md and team/03_EVENING.md.
    team/YASO_EVENING_QA.md (pass/fail + screenshot names).
 3. IMPORTANT: in src/mock/scripts/upi.ts and refusal.ts you may change wording, but NOT the order or kind of events
    (a test locks them to the live pipeline).
-4. SAVE STEP after each task (commit "yaso: evening N", push origin yaso).
+4. SAVE STEP after each task (commit "yaso: evening N", push origin yaso). NEVER use --force; if a push is rejected, stop and tell me.
 ```
 **Backup video #1 (~20:30):** `npm run dev` → Reset → press **P** (Present) → Run demo → **UPI Hero dispute** → record with **Win + Alt + R** until the SMS appears. Save as `advocall_backup_upi.mp4` and send it to Rayan.
 

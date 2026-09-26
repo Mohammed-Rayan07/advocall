@@ -4,5 +4,6 @@ import { quickScript } from "./quick";
 import { upiScript } from "./upi";
 import { ecomScript } from "./ecom";
 import { refusalScript } from "./refusal";
+import { telecomScript } from "./telecom";
 
-export const DEMO_SCRIPTS: DemoScript[] = [quickScript, upiScript, ecomScript, refusalScript];
+export const DEMO_SCRIPTS: DemoScript[] = [quickScript, upiScript, ecomScript, refusalScript, telecomScript];

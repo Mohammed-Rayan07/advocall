@@ -4,10 +4,12 @@ import { useEffect, useState, useRef } from "react";
 import { animate } from "motion/react";
 import { Activity, ShieldAlert, CheckCircle2, PhoneCall } from "lucide-react";
 import { formatINR } from "@/lib/core/format";
-import type { CaseView } from "@/types";
+import { t } from "@/content";
+import type { CaseView, Lang } from "@/types";
 
 interface StatsBarProps {
   cases: CaseView[];
+  lang?: Lang;
 }
 
 function AnimatedStat({
@@ -40,7 +42,7 @@ function AnimatedStat({
   );
 }
 
-export default function StatsBar({ cases }: StatsBarProps) {
+export default function StatsBar({ cases, lang = "en" }: StatsBarProps) {
   const activeCases = cases.filter(
     (c) => c.case.status !== "resolved" && c.case.status !== "failed"
   ).length;
@@ -60,7 +62,7 @@ export default function StatsBar({ cases }: StatsBarProps) {
 
   const stats = [
     {
-      label: "Active cases",
+      label: t("liveCases", lang),
       value: activeCases,
       isCurrency: false,
       color: "text-ink",
@@ -69,7 +71,7 @@ export default function StatsBar({ cases }: StatsBarProps) {
       badge: "In flight",
     },
     {
-      label: "₹ At stake",
+      label: t("atStake", lang),
       value: totalAtStakePaise,
       isCurrency: true,
       color: "text-money",
@@ -78,7 +80,7 @@ export default function StatsBar({ cases }: StatsBarProps) {
       badge: "Disputed",
     },
     {
-      label: "₹ Committed",
+      label: t("recovered", lang),
       value: totalCommittedPaise,
       isCurrency: true,
       color: "text-good",
@@ -107,11 +109,11 @@ export default function StatsBar({ cases }: StatsBarProps) {
             className="flex flex-col justify-between rounded-card border border-line bg-surface p-4 transition-all hover:border-line/80 shadow-sm"
           >
             <div className="flex items-center justify-between text-xs text-muted mb-2">
-              <span className="font-medium tracking-wide uppercase text-[11px]">
+              <span className="font-semibold tracking-wide uppercase text-xs">
                 {stat.label}
               </span>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-muted hidden sm:inline-block">
+                <span className="text-xs text-muted/80 hidden sm:inline-block">
                   {stat.badge}
                 </span>
                 <Icon className={`h-4 w-4 ${stat.iconColor}`} />

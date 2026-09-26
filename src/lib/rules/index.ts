@@ -5,3 +5,5 @@ export { addDays, daysBetween, isValidYmd } from "./dates";
 export { matchRule } from "./engine";
 export { buildEscalationPacket } from "./escalation";
 export { buildCallBrief, type CallBrief } from "./brief";
+export { rightsTimeline, type RightsMilestone } from "./timeline";
+export { rightsSummary } from "./summary";

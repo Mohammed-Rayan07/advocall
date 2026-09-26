@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Play, ChevronDown, RotateCcw, Zap } from "lucide-react";
+import { Play, ChevronDown, RotateCcw, Zap, MonitorPlay } from "lucide-react";
 import { t } from "@/content";
 import type { Lang } from "@/types";
 
@@ -11,6 +11,8 @@ interface HeaderProps {
   onLang: (lang: Lang) => void;
   onDemo: (scriptId: string, speed?: number) => void;
   onReset: () => void;
+  presentMode?: boolean;
+  onTogglePresent?: () => void;
 }
 
 export default function Header({
@@ -19,6 +21,8 @@ export default function Header({
   onLang,
   onDemo,
   onReset,
+  presentMode = false,
+  onTogglePresent,
 }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -58,9 +62,9 @@ export default function Header({
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_12px_#22d3ee]" />
             </span>
-            <span className="text-xl font-bold tracking-tight text-ink">
+            <span className="text-xl font-bold tracking-tight text-ink font-sans">
               Advocall
             </span>
           </div>
@@ -71,21 +75,24 @@ export default function Header({
         </div>
 
         {/* Right: Controls */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Live / Offline status badge */}
           <div
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 sm:px-2.5 text-xs font-medium border ${
               connected
-                ? "bg-accent/10 border-accent/30 text-accent"
+                ? "bg-accent/10 border-accent/30 text-accent shadow-[0_0_10px_rgba(34,211,238,0.15)]"
                 : "bg-bad/10 border-bad/30 text-bad"
             }`}
+            title={connected ? t("connected", lang) : t("disconnected", lang)}
           >
             <span
               className={`h-1.5 w-1.5 rounded-full ${
                 connected ? "bg-accent animate-pulse-dot" : "bg-bad"
               }`}
             />
-            <span>{connected ? t("connected", lang) : t("disconnected", lang)}</span>
+            <span className="hidden sm:inline">
+              {connected ? t("connected", lang) : t("disconnected", lang)}
+            </span>
           </div>
 
           {/* Language toggle: EN | हि | ಕ */}
@@ -94,9 +101,10 @@ export default function Header({
               <button
                 key={l.id}
                 onClick={() => onLang(l.id)}
-                className={`rounded-md px-2 py-1 text-xs font-medium transition cursor-pointer ${
+                aria-label={`Switch language to ${l.label}`}
+                className={`rounded-md px-1.5 sm:px-2.5 py-1 text-xs font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   lang === l.id
-                    ? "bg-surface-2 text-accent border border-accent/30"
+                    ? "bg-surface-2 text-accent border border-accent/30 font-semibold"
                     : "text-muted hover:text-ink"
                 }`}
               >
@@ -109,16 +117,19 @@ export default function Header({
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-bg transition hover:opacity-90 active:scale-95 shadow-sm shadow-accent/10 cursor-pointer"
+              aria-label="Run demo menu"
+              aria-expanded={dropdownOpen}
+              className="inline-flex items-center gap-1 sm:gap-1.5 rounded-lg bg-accent px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-bg transition hover:opacity-90 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg shadow-sm shadow-accent/10"
             >
               <Play className="h-3.5 w-3.5 fill-current" />
-              <span>{t("startDemo", lang)}</span>
+              <span className="hidden sm:inline">{t("startDemo", lang)}</span>
+              <span className="sm:hidden">Demo</span>
               <ChevronDown className="h-3.5 w-3.5" />
             </button>
 
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-64 rounded-card border border-line bg-surface p-1.5 shadow-2xl z-50">
-                <div className="px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted border-b border-line mb-1">
+                <div className="px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted border-b border-line mb-1">
                   Select Demo Script
                 </div>
                 {demoScripts.map((s, idx) => (
@@ -128,14 +139,14 @@ export default function Header({
                       setDropdownOpen(false);
                       onDemo(s.id, s.speed);
                     }}
-                    className="w-full text-left px-2.5 py-2 rounded-lg text-xs hover:bg-surface-2 transition flex items-center justify-between group cursor-pointer"
+                    className="w-full text-left px-2.5 py-2 rounded-lg text-xs hover:bg-surface-2 transition flex items-center justify-between group cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                   >
                     <div>
-                      <div className="font-medium text-ink group-hover:text-accent flex items-center gap-1.5">
+                      <div className="font-semibold text-ink group-hover:text-accent flex items-center gap-1.5">
                         {s.speed > 1 && <Zap className="h-3 w-3 text-warn" />}
                         {s.label}
                       </div>
-                      <div className="text-[11px] text-muted">{s.desc}</div>
+                      <div className="text-xs text-muted">{s.desc}</div>
                     </div>
                   </button>
                 ))}
@@ -143,11 +154,28 @@ export default function Header({
             )}
           </div>
 
+          {/* Present button (Projector mode) */}
+          <button
+            onClick={onTogglePresent}
+            title="Toggle presentation mode for projectors (shortcut: P)"
+            aria-label="Toggle presentation mode"
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+              presentMode
+                ? "bg-accent text-bg border-accent shadow-md shadow-accent/20"
+                : "border-line bg-surface text-muted hover:border-accent/40 hover:text-accent"
+            }`}
+          >
+            <MonitorPlay className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Present</span>
+            <span className="hidden lg:inline opacity-75 font-mono ml-0.5">P</span>
+          </button>
+
           {/* Reset button */}
           <button
             onClick={onReset}
             title={t("reset", lang)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-muted transition hover:border-bad/40 hover:text-bad cursor-pointer active:scale-95"
+            aria-label={t("reset", lang)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-muted transition hover:border-bad/40 hover:text-bad cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bad"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{t("reset", lang)}</span>

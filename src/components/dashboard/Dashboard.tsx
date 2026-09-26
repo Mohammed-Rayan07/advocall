@@ -9,13 +9,12 @@ import CaseList from "./CaseList";
 import CaseHeader from "./CaseHeader";
 import RuleCard from "./RuleCard";
 import CallProgress from "./CallProgress";
+import CommitmentCard from "./CommitmentCard";
+import EscalationPanel from "./EscalationPanel";
 import TranscriptPanel from "./TranscriptPanel";
+import Timeline from "./Timeline";
+import SmsPreview from "./SmsPreview";
 import type { Lang } from "@/types";
-import {
-  Sparkles,
-  Clock,
-  ExternalLink,
-} from "lucide-react";
 
 export default function Dashboard() {
   const { cases, byId, connected, startDemo, reset } = useCaseStream();
@@ -70,71 +69,34 @@ export default function Dashboard() {
             <div className="lg:col-span-4 xl:col-span-5 space-y-4">
               {selectedCase && (
                 <>
-                  {/* Case Header */}
                   <CaseHeader view={selectedCase} lang={lang} />
-
-                  {/* Rule Applied Card */}
                   <RuleCard match={selectedCase.match} lang={lang} />
-
-                  {/* Call Progress Stepper */}
                   <CallProgress
                     call={advocateCall}
                     calls={selectedCase.calls}
                     lang={lang}
                   />
-
-                  {/* Placeholder for Task 3: Commitment Card */}
-                  <div className="rounded-card border border-line bg-surface p-4 space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-good uppercase tracking-wide">
-                      <Sparkles className="h-4 w-4" />
-                      <span>Formal Commitment</span>
-                    </div>
-                    <p className="font-mono text-xs text-muted">
-                      {selectedCase.commitment?.ticketNo
-                        ? `Captured Ticket: ${selectedCase.commitment.ticketNo}`
-                        : "Waiting for bank complaint reference number..."}
-                    </p>
-                  </div>
-
-                  {/* Placeholder for Task 3: Escalation Panel */}
-                  <div className="rounded-card border border-line bg-surface p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs font-semibold text-warn uppercase tracking-wide">
-                        <ExternalLink className="h-4 w-4" />
-                        <span>Regulator Escalation Packet</span>
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted">
-                      Generates statutory RBI Ombudsman / NCH escalation complaints upon deadline breach.
-                    </p>
-                  </div>
+                  <CommitmentCard
+                    commitment={selectedCase.commitment}
+                    lang={lang}
+                  />
+                  <EscalationPanel view={selectedCase} lang={lang} />
                 </>
               )}
             </div>
 
-            {/* COLUMN 3: LIVE TRANSCRIPT & TIMELINE (~36% width -> 4 cols on xl) */}
+            {/* COLUMN 3: LIVE TRANSCRIPT & OPERATIONS (~36% width -> 4 cols on xl) */}
             <div className="lg:col-span-4 xl:col-span-4 space-y-4">
               {selectedCase && (
                 <>
-                  {/* Live Transcript Panel */}
                   <TranscriptPanel
                     lines={selectedCase.transcript}
                     calls={selectedCase.calls}
                     companyName={selectedCase.case.company}
                     lang={lang}
                   />
-
-                  {/* Timeline & SMS placeholder shell (Task 3) */}
-                  <div className="rounded-card border border-line bg-surface p-4 space-y-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-ink uppercase tracking-wide border-b border-line pb-2.5">
-                      <Clock className="h-4 w-4 text-accent-2" />
-                      <span>Timeline &amp; SMS Dispatch</span>
-                    </div>
-                    <div className="text-xs text-muted space-y-1">
-                      <p>• Real-time chronological audit events</p>
-                      <p>• Phone notification bubble for user SMS alerts</p>
-                    </div>
-                  </div>
+                  <Timeline events={selectedCase.timeline} lang={lang} />
+                  <SmsPreview messages={selectedCase.messages} lang={lang} />
                 </>
               )}
             </div>

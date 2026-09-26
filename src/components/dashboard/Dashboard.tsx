@@ -8,11 +8,11 @@ import EmptyState from "./EmptyState";
 import CaseList from "./CaseList";
 import CaseHeader from "./CaseHeader";
 import RuleCard from "./RuleCard";
+import CallProgress from "./CallProgress";
+import TranscriptPanel from "./TranscriptPanel";
 import type { Lang } from "@/types";
 import {
   Sparkles,
-  PhoneForwarded,
-  MessageSquare,
   Clock,
   ExternalLink,
 } from "lucide-react";
@@ -34,6 +34,8 @@ export default function Dashboard() {
     setUserSelectedId(null);
     await reset();
   };
+
+  const advocateCall = selectedCase?.calls.find((c) => c.leg === "advocate");
 
   return (
     <div className="min-h-screen bg-bg text-ink flex flex-col selection:bg-accent/20 selection:text-accent">
@@ -74,17 +76,12 @@ export default function Dashboard() {
                   {/* Rule Applied Card */}
                   <RuleCard match={selectedCase.match} lang={lang} />
 
-                  {/* Placeholder for Task 2: Call Progress Stepper */}
-                  <div className="rounded-card border border-line bg-surface p-4 space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-accent-2 uppercase tracking-wide">
-                      <PhoneForwarded className="h-4 w-4" />
-                      <span>Advocate Call Stepper</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-muted">
-                      <span className="h-2 w-2 rounded-full bg-accent animate-pulse-dot" />
-                      <span>9-step autonomous state machine loading...</span>
-                    </div>
-                  </div>
+                  {/* Call Progress Stepper */}
+                  <CallProgress
+                    call={advocateCall}
+                    calls={selectedCase.calls}
+                    lang={lang}
+                  />
 
                   {/* Placeholder for Task 3: Commitment Card */}
                   <div className="rounded-card border border-line bg-surface p-4 space-y-2">
@@ -117,60 +114,29 @@ export default function Dashboard() {
 
             {/* COLUMN 3: LIVE TRANSCRIPT & TIMELINE (~36% width -> 4 cols on xl) */}
             <div className="lg:col-span-4 xl:col-span-4 space-y-4">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted">
-                  Live Operations
-                </span>
-                <span className="text-xs text-accent flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse-dot" />
-                  Live Stream
-                </span>
-              </div>
+              {selectedCase && (
+                <>
+                  {/* Live Transcript Panel */}
+                  <TranscriptPanel
+                    lines={selectedCase.transcript}
+                    calls={selectedCase.calls}
+                    companyName={selectedCase.case.company}
+                    lang={lang}
+                  />
 
-              {/* Transcript placeholder shell (Task 2) */}
-              <div className="rounded-card border border-line bg-surface p-4 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-semibold text-ink uppercase tracking-wide border-b border-line pb-2.5">
-                  <MessageSquare className="h-4 w-4 text-accent" />
-                  <span>Call Transcript</span>
-                </div>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                  {selectedCase && selectedCase.transcript.length > 0 ? (
-                    selectedCase.transcript.slice(-4).map((line, idx) => (
-                      <div
-                        key={idx}
-                        className={`p-2.5 rounded-lg text-xs leading-relaxed ${
-                          line.speaker === "agent"
-                            ? "bg-accent/10 border border-accent/20 text-ink"
-                            : line.speaker === "company"
-                            ? "bg-surface-2 border border-line text-ink"
-                            : "bg-accent-2/10 border border-accent-2/20 text-ink"
-                        }`}
-                      >
-                        <div className="text-[10px] uppercase font-mono text-muted mb-0.5">
-                          {line.speaker}
-                        </div>
-                        <div>{line.text}</div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-6 text-center text-xs text-muted">
-                      No active transcript lines. Run a demo to stream dialogue.
+                  {/* Timeline & SMS placeholder shell (Task 3) */}
+                  <div className="rounded-card border border-line bg-surface p-4 space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-ink uppercase tracking-wide border-b border-line pb-2.5">
+                      <Clock className="h-4 w-4 text-accent-2" />
+                      <span>Timeline &amp; SMS Dispatch</span>
                     </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Timeline & SMS placeholder shell (Task 3) */}
-              <div className="rounded-card border border-line bg-surface p-4 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-semibold text-ink uppercase tracking-wide border-b border-line pb-2.5">
-                  <Clock className="h-4 w-4 text-accent-2" />
-                  <span>Timeline &amp; SMS Dispatch</span>
-                </div>
-                <div className="text-xs text-muted space-y-1">
-                  <p>• Real-time chronological audit events</p>
-                  <p>• Phone notification bubble for user SMS alerts</p>
-                </div>
-              </div>
+                    <div className="text-xs text-muted space-y-1">
+                      <p>• Real-time chronological audit events</p>
+                      <p>• Phone notification bubble for user SMS alerts</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

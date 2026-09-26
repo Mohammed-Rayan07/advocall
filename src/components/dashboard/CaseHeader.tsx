@@ -15,7 +15,8 @@ export default function CaseHeader({ view, lang = "en" }: CaseHeaderProps) {
   const { case: c } = view;
 
   return (
-    <div className="rounded-card border border-line bg-surface p-5 transition-all shadow-sm">
+    <div className="relative overflow-hidden rounded-card border border-line bg-surface p-5 pt-6 transition-all shadow-elevated">
+      <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-accent via-accent-2 to-accent" />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
         <div>
           <div className="flex flex-wrap items-center gap-2.5">

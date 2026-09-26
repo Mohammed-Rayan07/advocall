@@ -60,6 +60,15 @@ export default function StatsBar({ cases, lang = "en" }: StatsBarProps) {
 
   const totalCalls = cases.reduce((sum, c) => sum + c.calls.length, 0);
 
+  // Full literal class names per badge color (Tailwind's scanner needs the whole
+  // string in source; template interpolation like `bg-${x}/10` is invisible to it).
+  const GLOW = {
+    "accent-2": "bg-accent-2/10 text-accent-2 shadow-[0_0_18px_-4px_var(--color-accent-2)]",
+    money: "bg-money/10 text-money shadow-[0_0_18px_-4px_var(--color-money)]",
+    good: "bg-good/10 text-good shadow-[0_0_18px_-4px_var(--color-good)]",
+    accent: "bg-accent/10 text-accent shadow-[0_0_18px_-4px_var(--color-accent)]",
+  } as const;
+
   const stats = [
     {
       label: t("liveCases", lang),
@@ -67,7 +76,7 @@ export default function StatsBar({ cases, lang = "en" }: StatsBarProps) {
       isCurrency: false,
       color: "text-ink",
       icon: Activity,
-      iconColor: "text-accent-2",
+      glow: GLOW["accent-2"],
       badge: t("inFlight", lang),
     },
     {
@@ -76,7 +85,7 @@ export default function StatsBar({ cases, lang = "en" }: StatsBarProps) {
       isCurrency: true,
       color: "text-money",
       icon: ShieldAlert,
-      iconColor: "text-money",
+      glow: GLOW.money,
       badge: t("disputed", lang),
     },
     {
@@ -85,7 +94,7 @@ export default function StatsBar({ cases, lang = "en" }: StatsBarProps) {
       isCurrency: true,
       color: "text-good",
       icon: CheckCircle2,
-      iconColor: "text-good",
+      glow: GLOW.good,
       badge: t("ticketConfirmed", lang),
     },
     {
@@ -94,7 +103,7 @@ export default function StatsBar({ cases, lang = "en" }: StatsBarProps) {
       isCurrency: false,
       color: "text-accent",
       icon: PhoneCall,
-      iconColor: "text-accent",
+      glow: GLOW.accent,
       badge: t("voiceLegs", lang),
     },
   ];
@@ -106,25 +115,29 @@ export default function StatsBar({ cases, lang = "en" }: StatsBarProps) {
         return (
           <div
             key={i}
-            className="flex flex-col justify-between rounded-card border border-line bg-surface p-4 transition-all hover:border-line/80 shadow-sm"
+            className="flex flex-col justify-between rounded-card border border-line bg-surface p-4 transition-all hover:border-line/80 hover:-translate-y-0.5 shadow-soft"
           >
-            <div className="flex items-center justify-between text-xs text-muted mb-2">
-              <span className="font-semibold tracking-wide uppercase text-xs">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-semibold tracking-wide uppercase text-muted">
                 {stat.label}
               </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs text-muted/80 hidden sm:inline-block">
-                  {stat.badge}
-                </span>
-                <Icon className={`h-4 w-4 ${stat.iconColor}`} />
-              </div>
+              <span
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${stat.glow}`}
+              >
+                <Icon className="h-4 w-4" />
+              </span>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold tracking-tight">
-              <AnimatedStat
-                value={stat.value}
-                isCurrency={stat.isCurrency}
-                className={stat.color}
-              />
+            <div className="flex items-end justify-between gap-2">
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight">
+                <AnimatedStat
+                  value={stat.value}
+                  isCurrency={stat.isCurrency}
+                  className={stat.color}
+                />
+              </div>
+              <span className="text-xs text-muted/80 hidden sm:inline-block pb-0.5">
+                {stat.badge}
+              </span>
             </div>
           </div>
         );

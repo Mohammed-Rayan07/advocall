@@ -75,8 +75,17 @@ export default function CallProgress({
   const intakeCall = calls.find((c) => c.leg === "intake");
   const reportCall = calls.find((c) => c.leg === "report");
 
+  const totalSteps = ADVOCATE_STATES.length;
+  const doneCount =
+    visited.length > 0
+      ? ADVOCATE_STATES.filter((s) => visited.includes(s)).length
+      : call?.status === "ended"
+      ? totalSteps
+      : Math.max(currentIndex, 0);
+  const progressPct = totalSteps > 1 ? (doneCount / (totalSteps - 1)) * 100 : 0;
+
   return (
-    <div className="rounded-card border border-line bg-surface p-5 space-y-4 shadow-sm">
+    <div className="rounded-card border border-line bg-surface p-5 space-y-4 shadow-soft">
       {/* Header: Title + Duration Timer + Call Legs Chips */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-3">
         <div className="flex items-center gap-2">
@@ -124,6 +133,13 @@ export default function CallProgress({
 
       {/* 9-Step Stepper */}
       <div className="relative pt-2">
+        {/* Connecting progress track (single-row layout only, sm+) */}
+        <div className="hidden sm:block absolute left-4 right-4 top-6 h-0.5 rounded-full bg-line overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-accent to-good transition-[width] duration-500 ease-out"
+            style={{ width: `${progressPct}%` }}
+          />
+        </div>
         <div className="grid grid-cols-3 sm:grid-cols-9 gap-x-1 gap-y-3 relative z-10">
           {ADVOCATE_STATES.map((step, idx) => {
             const isCurrent = idx === currentIndex && call?.status === "in_progress";

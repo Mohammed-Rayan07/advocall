@@ -55,7 +55,7 @@ export default function TranscriptPanel({
   };
 
   return (
-    <div className="rounded-card border border-line bg-surface p-4 flex flex-col h-[520px] shadow-sm">
+    <div className="rounded-card border border-line bg-surface p-4 flex flex-col h-[520px] shadow-elevated">
       {/* Panel Header */}
       <div className="flex items-center justify-between border-b border-line pb-3 mb-3">
         <div className="flex items-center gap-2">
@@ -135,10 +135,10 @@ export default function TranscriptPanel({
                     <div
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border text-xs ${
                         isAgent
-                          ? "bg-accent/15 border-accent/30 text-accent"
+                          ? "bg-accent/15 border-accent/30 text-accent shadow-[0_0_12px_-4px_var(--color-accent)]"
                           : isCompany
                           ? "bg-surface-2 border-line text-muted"
-                          : "bg-accent-2/15 border-accent-2/30 text-accent-2"
+                          : "bg-accent-2/15 border-accent-2/30 text-accent-2 shadow-[0_0_12px_-4px_var(--color-accent-2)]"
                       }`}
                     >
                       {isAgent ? (

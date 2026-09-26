@@ -14,7 +14,7 @@ export default function SmsPreview({ messages, lang = "en" }: SmsPreviewProps) {
   const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
 
   return (
-    <div className="rounded-card border border-line bg-surface p-4 space-y-3 shadow-sm">
+    <div className="rounded-card border border-line bg-surface p-4 space-y-3 shadow-soft">
       <div className="flex items-center justify-between border-b border-line pb-2.5">
         <div className="flex items-center gap-2">
           <Smartphone className="h-4 w-4 text-accent" />

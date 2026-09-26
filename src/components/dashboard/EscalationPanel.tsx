@@ -58,7 +58,7 @@ export default function EscalationPanel({
 
   if (!escalation) {
     return (
-      <div className="rounded-card border border-line bg-surface p-5 space-y-3 shadow-sm">
+      <div className="rounded-card border border-line bg-surface p-5 space-y-3 shadow-soft">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-3">
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-warn/15 border border-warn/30 text-warn">
@@ -104,7 +104,8 @@ export default function EscalationPanel({
   }
 
   return (
-    <div className="rounded-card border border-warn/40 bg-surface p-5 space-y-4 shadow-sm">
+    <div className="relative overflow-hidden rounded-card border border-warn/40 bg-surface p-5 pt-6 space-y-4 shadow-elevated">
+      <div className="absolute inset-x-0 top-0 h-[3px] bg-warn" />
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-3">
         <div className="flex items-center gap-2">

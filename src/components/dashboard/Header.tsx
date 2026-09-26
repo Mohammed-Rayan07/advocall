@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Play, ChevronDown, RotateCcw, Zap, MonitorPlay } from "lucide-react";
+import { Play, ChevronDown, RotateCcw, Zap, MonitorPlay, Scale } from "lucide-react";
 import { t } from "@/content";
 import type { Lang } from "@/types";
 import LiveCallMenu from "./LiveCallMenu";
@@ -57,16 +57,15 @@ export default function Header({
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-line bg-bg/95 backdrop-blur px-3 py-3 sm:px-6">
+    <header className="sticky top-0 z-40 w-full border-b border-line bg-bg/90 backdrop-blur-md px-3 py-3 sm:px-6">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-2 sm:gap-4">
         {/* Left: Brand + Tagline */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2.5">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_12px_var(--color-accent)]" />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent-2 text-bg shadow-[0_4px_16px_-4px_var(--color-accent)]">
+              <Scale className="h-[18px] w-[18px]" strokeWidth={2.25} />
             </span>
-            <span className="text-lg sm:text-xl font-bold tracking-tight text-ink font-sans">
+            <span className="text-lg sm:text-xl font-bold tracking-tight text-gradient font-sans">
               Advocall
             </span>
           </div>
@@ -121,7 +120,7 @@ export default function Header({
               onClick={() => setDropdownOpen((v) => !v)}
               aria-label="Run demo menu"
               aria-expanded={dropdownOpen}
-              className="inline-flex items-center gap-1 sm:gap-1.5 rounded-lg bg-accent px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-bg transition hover:opacity-90 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg shadow-sm shadow-accent/10"
+              className="inline-flex items-center gap-1 sm:gap-1.5 rounded-lg bg-gradient-to-br from-accent to-accent-2 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-bg transition hover:brightness-110 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg shadow-soft"
             >
               <Play className="h-3.5 w-3.5 fill-current" />
               <span className="hidden sm:inline">{t("startDemo", lang)}</span>
@@ -130,7 +129,7 @@ export default function Header({
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 rounded-card border border-line bg-surface p-1.5 shadow-2xl z-50">
+              <div className="absolute right-0 mt-2 w-64 rounded-card border border-line bg-surface-2 p-1.5 shadow-elevated z-50">
                 <div className="px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted border-b border-line mb-1">
                   {t("chooseDemo", lang)}
                 </div>
@@ -166,7 +165,7 @@ export default function Header({
             aria-label="Toggle presentation mode"
             className={`hidden sm:inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
               presentMode
-                ? "bg-accent text-bg border-accent shadow-md shadow-accent/20"
+                ? "bg-gradient-to-br from-accent to-accent-2 text-bg border-accent shadow-soft"
                 : "border-line bg-surface text-muted hover:border-accent/40 hover:text-accent"
             }`}
           >

@@ -47,7 +47,7 @@ export default function RuleCard({
 
   return (
     <div
-      className={`rounded-card border border-line bg-surface p-5 space-y-4 transition-all shadow-sm ${className}`}
+      className={`rounded-card border border-line bg-surface p-5 space-y-4 transition-all shadow-soft ${className}`}
     >
       {/* Header: Rule ID Chip + Title + Source Link */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-3">
@@ -76,9 +76,9 @@ export default function RuleCard({
         )}
       </div>
 
-      {/* citeText as a prominent quote */}
+      {/* citeText as a prominent quote: serif type signals "verified legal document", not UI copy */}
       {match.rule.citeText && (
-        <blockquote className="rounded-lg border-l-2 border-accent bg-surface-2/60 p-3 text-xs italic text-ink leading-relaxed">
+        <blockquote className="rounded-lg border-l-2 border-accent bg-surface-2/60 p-3.5 text-sm italic text-ink leading-relaxed font-serif">
           &ldquo;{match.rule.citeText}&rdquo;
         </blockquote>
       )}
@@ -134,7 +134,7 @@ export default function RuleCard({
         </div>
 
         {/* Total at Stake */}
-        <div className="rounded-lg border border-accent/30 bg-accent/5 p-2.5 flex flex-col justify-between">
+        <div className="rounded-lg border border-accent/30 bg-accent/5 p-2.5 flex flex-col justify-between shadow-[0_0_20px_-8px_var(--color-accent)]">
           <div className="flex items-center justify-between text-xs text-accent mb-1 font-medium">
             <span>{t("atStake", lang)}</span>
             <ShieldCheck className="h-3.5 w-3.5 text-accent" />

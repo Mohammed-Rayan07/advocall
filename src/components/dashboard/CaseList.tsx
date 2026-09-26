@@ -50,12 +50,15 @@ export default function CaseList({
               key={c.case.id}
               onClick={() => onSelect(c.case.id)}
               aria-label={`Select case ${c.case.id} for ${c.case.company}`}
-              className={`min-w-[260px] sm:min-w-[280px] lg:min-w-0 w-full text-left rounded-card p-3.5 border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+              className={`relative overflow-hidden min-w-[260px] sm:min-w-[280px] lg:min-w-0 w-full text-left rounded-card p-3.5 pl-4 border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                 isSelected
-                  ? "bg-surface border-accent shadow-md shadow-accent/5 ring-1 ring-accent/30"
+                  ? "bg-surface border-accent shadow-soft"
                   : "bg-surface border-line hover:border-line/80 hover:bg-surface-2/40"
               }`}
             >
+              {isSelected && (
+                <span className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-accent to-accent-2" />
+              )}
               <div className="flex items-center justify-between mb-2">
                 <span className="font-mono text-xs font-semibold text-ink">
                   {c.case.id}
@@ -64,7 +67,7 @@ export default function CaseList({
               </div>
 
               <div className="flex items-center gap-2 mb-2">
-                <span className="p-1.5 rounded-lg bg-surface-2 text-muted border border-line">
+                <span className="p-1.5 rounded-lg bg-accent-2/10 text-accent-2 border border-accent-2/20">
                   {getCategoryIcon(c.case.category)}
                 </span>
                 <span className="text-sm font-semibold text-ink truncate">

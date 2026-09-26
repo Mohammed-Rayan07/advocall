@@ -24,7 +24,8 @@ export default function CommitmentCard({
   // If company refused to give a ticket and case failed / escalated
   if (!commitment && (caseStatus === "failed" || caseStatus === "escalated")) {
     return (
-      <div className="rounded-card border border-bad/40 bg-bad/5 p-5 space-y-3">
+      <div className="relative overflow-hidden rounded-card border border-bad/40 bg-bad/5 p-5 pt-6 space-y-3 shadow-elevated">
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-bad" />
         <div className="flex items-center justify-between border-b border-bad/20 pb-3">
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-bad/15 text-bad border border-bad/30">
@@ -59,7 +60,7 @@ export default function CommitmentCard({
 
   if (!commitment) {
     return (
-      <div className="rounded-card border border-line bg-surface p-5 space-y-3 shadow-sm">
+      <div className="rounded-card border border-line bg-surface p-5 space-y-3 shadow-soft">
         <div className="flex items-center justify-between border-b border-line pb-3">
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-2 text-muted border border-line">
@@ -100,8 +101,9 @@ export default function CommitmentCard({
         boxShadow: "0 0 30px -4px rgba(52, 211, 153, 0.25)",
       }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="rounded-card border border-good/50 bg-good/5 p-5 space-y-4 transition-all shadow-sm"
+      className="relative overflow-hidden rounded-card border border-good/50 bg-good/5 p-5 pt-6 space-y-4 transition-all shadow-elevated"
     >
+      <div className="absolute inset-x-0 top-0 h-[3px] bg-good" />
       {/* Header */}
       <div className="flex items-center justify-between border-b border-good/20 pb-3">
         <div className="flex items-center gap-2">
@@ -125,7 +127,7 @@ export default function CommitmentCard({
       </div>
 
       {/* Hero Ticket Number */}
-      <div className="rounded-xl bg-surface/90 border border-good/30 p-4 text-center">
+      <div className="rounded-xl bg-surface/90 border border-good/30 p-4 text-center shadow-[0_0_36px_-12px_var(--color-good)]">
         <div className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
           {t("ticket", lang)}
         </div>

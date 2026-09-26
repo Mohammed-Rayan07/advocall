@@ -4,27 +4,30 @@
  * ADVOCALL DESIGN TOKENS. Owner: Rayan (LOCKED).
  * Tailwind v4: tokens live HERE (there is NO tailwind.config.js, never create one).
  * Use them as classes: bg-bg, bg-surface, bg-surface-2, border-line, text-ink, text-muted,
- * text-accent, bg-accent, text-good, text-warn, text-bad, text-money, font-mono ...
+ * text-accent, bg-accent, text-good, text-warn, text-bad, text-money, font-mono, font-serif ...
+ * Custom-tuned palette (never stock Tailwind swatches) so the product doesn't read as a
+ * default dark-mode template. Semantic roles are unchanged.
  */
 
 @theme {
   --color-bg: #07090d;
-  --color-surface: #0e1219;
-  --color-surface-2: #151b25;
-  --color-line: #232b38;
-  --color-ink: #e8edf5;
-  --color-muted: #8591a5;
-  --color-accent: #22d3ee; /* cyan: Advocall brand, agent speaking, live */
-  --color-accent-2: #818cf8; /* indigo: secondary highlights */
-  --color-good: #34d399; /* promised / resolved / money recovered */
-  --color-warn: #fbbf24; /* hold, waiting, deadline close */
-  --color-bad: #f87171; /* refused, failed, deadline missed */
-  --color-money: #fcd34d; /* ₹ amounts */
+  --color-surface: #10151d;
+  --color-surface-2: #171e29;
+  --color-line: #263041;
+  --color-ink: #edf1f8;
+  --color-muted: #8996ac;
+  --color-accent: #26d0cf; /* teal-cyan: Advocall brand, agent speaking, live */
+  --color-accent-2: #7c8ce6; /* muted indigo-blue: secondary highlights */
+  --color-good: #37d093; /* promised / resolved / money recovered */
+  --color-warn: #f2a93b; /* hold, waiting, deadline close */
+  --color-bad: #f1685f; /* refused, failed, deadline missed */
+  --color-money: #eec767; /* ₹ amounts */
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
 
-  --radius-card: 1rem;
+  --radius-card: 1.125rem;
 
   --animate-pulse-dot: pulse-dot 1.4s ease-in-out infinite;
   @keyframes pulse-dot {
@@ -35,13 +38,42 @@
 
 html,
 body {
-  background: var(--color-bg);
+  background-color: var(--color-bg);
   color: var(--color-ink);
 }
 
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* Ops-console texture: two soft brand glows + a faint engineered dot-grid. Painted as the
+     body's own background (never a positioned layer) so it can never sit above real content. */
+  background-image:
+    radial-gradient(1100px 620px at 10% -12%, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 60%),
+    radial-gradient(900px 560px at 108% -6%, color-mix(in srgb, var(--color-accent-2) 7%, transparent), transparent 58%),
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--color-ink) 5%, transparent) 1px, transparent 0);
+  background-size: auto, auto, 24px 24px;
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-attachment: fixed, fixed, fixed;
+}
+
+/* Reusable elevation: layered soft shadows read as depth, unlike a single flat drop-shadow. */
+.shadow-elevated {
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 28px 56px -28px rgba(0, 0, 0, 0.65),
+    0 10px 20px -10px rgba(0, 0, 0, 0.45);
+}
+
+.shadow-soft {
+  box-shadow: 0 14px 28px -18px rgba(0, 0, 0, 0.55);
+}
+
+/* Brand wordmark gradient (accent -> accent-2). */
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
 /* thin dark scrollbars for transcript panes */

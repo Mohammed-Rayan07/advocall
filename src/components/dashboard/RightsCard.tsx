@@ -34,9 +34,9 @@ export default function RightsCard({ view, lang = "en" }: RightsCardProps) {
   const milestones = rightsTimeline(view.case, match, view.commitment, todayIST());
 
   return (
-    <div className="rounded-card border border-line bg-surface p-5 space-y-4 shadow-sm">
+    <div className="rounded-card border border-line bg-surface p-5 space-y-4 shadow-soft">
       <div className="flex items-center gap-2 border-b border-line pb-3">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-2/15 border border-accent-2/30 text-accent-2">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-2/15 border border-accent-2/30 text-accent-2 shadow-[0_0_14px_-4px_var(--color-accent-2)]">
           <CalendarClock className="h-4 w-4" />
         </div>
         <div>
@@ -45,7 +45,7 @@ export default function RightsCard({ view, lang = "en" }: RightsCardProps) {
         </div>
       </div>
 
-      <p className="text-sm leading-relaxed text-ink">{rightsSummary(match, lang)}</p>
+      <p className="text-sm leading-relaxed text-ink font-serif">{rightsSummary(match, lang)}</p>
 
       <ol className="relative space-y-3 border-l border-line pl-4">
         {milestones.map((m) => (

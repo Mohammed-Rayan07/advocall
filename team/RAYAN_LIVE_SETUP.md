@@ -55,6 +55,7 @@ All ✅ → go on. Any ❌ → paste the output to Claude Code (it contains no s
 2. http://localhost:3000/dev → **Live voice** panel → your phone, your name, Hindi → **☎ call me (real)**.
 3. Your phone rings (press a key for the Twilio trial message). Tell Advocall your problem in Hindi, e.g. *"22 तारीख को UPI से ₹4,500 भेजे, HDFC से कट गए, पहुँचे नहीं, रेफ़रेंस UPI4829301"*. Confirm the read-back.
 4. Hang up (or it hangs up). Advocall calls **the bank phone** in English, handles the brush-off, gets the ticket.
+   ⚠️ Advocall **waits for the bank to speak first** (like a real IVR). After pressing the Twilio trial key, the bank teammate must start: *"Welcome to HDFC Bank. For UPI complaints, press 2."* Otherwise there's silence.
 5. Then it calls **you back** in Hindi with the result, and the SMS text appears on the dashboard.
 Watch everything live on http://localhost:3000 and /dev.
 

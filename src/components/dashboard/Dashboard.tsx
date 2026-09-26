@@ -15,13 +15,16 @@ import TranscriptPanel from "./TranscriptPanel";
 import Timeline from "./Timeline";
 import SmsPreview from "./SmsPreview";
 import type { Lang } from "@/types";
-import { Minimize2 } from "lucide-react";
+import { Minimize2, Briefcase, FileText, MessageSquare } from "lucide-react";
 
 export default function Dashboard() {
   const { cases, byId, connected, startDemo, reset } = useCaseStream();
   const [userSelectedId, setUserSelectedId] = useState<string | null>(null);
   const [lang, setLang] = useState<Lang>("en");
   const [presentMode, setPresentMode] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"cases" | "details" | "transcript">(
+    "details"
+  );
 
   // Auto-select newest case unless user has explicitly chosen an existing case
   const selectedCase =
@@ -60,7 +63,7 @@ export default function Dashboard() {
   const advocateCall = selectedCase?.calls.find((c) => c.leg === "advocate");
 
   return (
-    <div className="min-h-screen bg-bg text-ink flex flex-col selection:bg-accent/20 selection:text-accent">
+    <div className="min-h-screen bg-bg text-ink flex flex-col selection:bg-accent/20 selection:text-accent max-w-full overflow-x-hidden">
       <Header
         connected={connected}
         lang={lang}
@@ -71,7 +74,7 @@ export default function Dashboard() {
         onTogglePresent={() => setPresentMode((v) => !v)}
       />
 
-      <main className="flex-1 w-full max-w-[1700px] mx-auto p-4 sm:p-6 space-y-6">
+      <main className="flex-1 w-full max-w-[1700px] mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
         {/* Metric tiles (hidden in Presentation Mode) */}
         {!presentMode && <StatsBar cases={cases} lang={lang} />}
 
@@ -88,6 +91,75 @@ export default function Dashboard() {
             >
               <Minimize2 className="h-3.5 w-3.5" />
               <span>Exit (P / Esc)</span>
+            </button>
+          </div>
+        )}
+
+        {/* Mobile Tab Switcher (< lg screen width) */}
+        {!presentMode && cases.length > 0 && (
+          <div
+            className="lg:hidden flex rounded-xl border border-line bg-surface p-1 shadow-sm"
+            role="tablist"
+            aria-label="Dashboard views"
+          >
+            <button
+              role="tab"
+              aria-selected={mobileTab === "cases"}
+              onClick={() => setMobileTab("cases")}
+              className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 px-3 text-xs font-semibold transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                mobileTab === "cases"
+                  ? "bg-accent text-bg shadow-sm"
+                  : "text-muted hover:text-ink hover:bg-surface-2"
+              }`}
+            >
+              <Briefcase className="h-3.5 w-3.5" />
+              <span>Cases</span>
+              <span
+                className={`ml-1 rounded-full px-1.5 py-0.5 text-xs font-mono ${
+                  mobileTab === "cases"
+                    ? "bg-bg/25 text-bg"
+                    : "bg-surface-2 text-muted"
+                }`}
+              >
+                {cases.length}
+              </span>
+            </button>
+
+            <button
+              role="tab"
+              aria-selected={mobileTab === "details"}
+              onClick={() => setMobileTab("details")}
+              className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 px-3 text-xs font-semibold transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                mobileTab === "details"
+                  ? "bg-accent text-bg shadow-sm"
+                  : "text-muted hover:text-ink hover:bg-surface-2"
+              }`}
+            >
+              <FileText className="h-3.5 w-3.5" />
+              <span>Details</span>
+            </button>
+
+            <button
+              role="tab"
+              aria-selected={mobileTab === "transcript"}
+              onClick={() => setMobileTab("transcript")}
+              className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 px-3 text-xs font-semibold transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                mobileTab === "transcript"
+                  ? "bg-accent text-bg shadow-sm"
+                  : "text-muted hover:text-ink hover:bg-surface-2"
+              }`}
+            >
+              <MessageSquare className="h-3.5 w-3.5" />
+              <span>Transcript</span>
+              {selectedCase && selectedCase.transcript.length > 0 && (
+                <span
+                  className={`ml-1 h-1.5 w-1.5 rounded-full ${
+                    mobileTab === "transcript"
+                      ? "bg-bg"
+                      : "bg-accent animate-pulse-dot"
+                  }`}
+                />
+              )}
             </button>
           </div>
         )}
@@ -132,20 +204,31 @@ export default function Dashboard() {
             </div>
           </div>
         ) : (
-          /* STANDARD 3-COLUMN DASHBOARD LAYOUT */
+          /* STANDARD 3-COLUMN DASHBOARD LAYOUT (Collapses to selected tab on mobile) */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             {/* COLUMN 1: CASE LIST (~22% width -> 3 cols on xl) */}
-            <div className="lg:col-span-4 xl:col-span-3">
+            <div
+              className={`lg:col-span-4 xl:col-span-3 ${
+                mobileTab === "cases" ? "block" : "hidden lg:block"
+              }`}
+            >
               <CaseList
                 cases={cases}
                 selectedId={selectedId}
-                onSelect={setUserSelectedId}
+                onSelect={(id) => {
+                  setUserSelectedId(id);
+                  setMobileTab("details");
+                }}
                 lang={lang}
               />
             </div>
 
             {/* COLUMN 2: CASE DETAIL (~42% width -> 5 cols on xl) */}
-            <div className="lg:col-span-4 xl:col-span-5 space-y-4">
+            <div
+              className={`lg:col-span-4 xl:col-span-5 space-y-4 ${
+                mobileTab === "details" ? "block" : "hidden lg:block"
+              }`}
+            >
               {selectedCase && (
                 <>
                   <CaseHeader view={selectedCase} lang={lang} />
@@ -166,7 +249,11 @@ export default function Dashboard() {
             </div>
 
             {/* COLUMN 3: LIVE TRANSCRIPT & OPERATIONS (~36% width -> 4 cols on xl) */}
-            <div className="lg:col-span-4 xl:col-span-4 space-y-4">
+            <div
+              className={`lg:col-span-4 xl:col-span-4 space-y-4 ${
+                mobileTab === "transcript" ? "block" : "hidden lg:block"
+              }`}
+            >
               {selectedCase && (
                 <>
                   <TranscriptPanel

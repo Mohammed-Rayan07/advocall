@@ -125,7 +125,7 @@ export default function CommitmentCard({
         <div className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
           {t("ticket", lang)}
         </div>
-        <div className="font-mono text-3xl sm:text-4xl font-black tracking-widest text-good select-all tabular-nums">
+        <div className="font-mono text-2xl sm:text-4xl font-black tracking-wider sm:tracking-widest text-good select-all tabular-nums break-all">
           {commitment.ticketNo}
         </div>
       </div>

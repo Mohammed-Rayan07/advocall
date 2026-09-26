@@ -75,21 +75,24 @@ export default function Header({
         </div>
 
         {/* Right: Controls */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Live / Offline status badge */}
           <div
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 sm:px-2.5 text-xs font-medium border ${
               connected
                 ? "bg-accent/10 border-accent/30 text-accent shadow-[0_0_10px_rgba(34,211,238,0.15)]"
                 : "bg-bad/10 border-bad/30 text-bad"
             }`}
+            title={connected ? t("connected", lang) : t("disconnected", lang)}
           >
             <span
               className={`h-1.5 w-1.5 rounded-full ${
                 connected ? "bg-accent animate-pulse-dot" : "bg-bad"
               }`}
             />
-            <span>{connected ? t("connected", lang) : t("disconnected", lang)}</span>
+            <span className="hidden sm:inline">
+              {connected ? t("connected", lang) : t("disconnected", lang)}
+            </span>
           </div>
 
           {/* Language toggle: EN | हि | ಕ */}
@@ -99,7 +102,7 @@ export default function Header({
                 key={l.id}
                 onClick={() => onLang(l.id)}
                 aria-label={`Switch language to ${l.label}`}
-                className={`rounded-md px-2.5 py-1 text-xs font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`rounded-md px-1.5 sm:px-2.5 py-1 text-xs font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   lang === l.id
                     ? "bg-surface-2 text-accent border border-accent/30 font-semibold"
                     : "text-muted hover:text-ink"
@@ -116,10 +119,11 @@ export default function Header({
               onClick={() => setDropdownOpen((v) => !v)}
               aria-label="Run demo menu"
               aria-expanded={dropdownOpen}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-bg transition hover:opacity-90 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg shadow-sm shadow-accent/10"
+              className="inline-flex items-center gap-1 sm:gap-1.5 rounded-lg bg-accent px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-bg transition hover:opacity-90 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg shadow-sm shadow-accent/10"
             >
               <Play className="h-3.5 w-3.5 fill-current" />
-              <span>{t("startDemo", lang)}</span>
+              <span className="hidden sm:inline">{t("startDemo", lang)}</span>
+              <span className="sm:hidden">Demo</span>
               <ChevronDown className="h-3.5 w-3.5" />
             </button>
 

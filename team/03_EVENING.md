@@ -6,34 +6,55 @@ Everything from all three branches is in `main`, fixed and tested: **78/78 tests
 - **Yaso:** telecom demo, voice lines, labels and test matrix merged. The telecom demo is now in the **Run demo** menu, and the live agent uses your disclosure line.
 - **Agastya:** timeline and summary merged and shown on the dashboard. Your interrupted final audit was **completed for you** (see the end of `team/AGASTYA_STATUS.md`). The pitch, Q&A and bank-rep script were corrected so they never claim something the prototype doesn't do.
 
-⚠️ **Code in your folders changed, so re-sync before doing anything (Step 1).**
+⚠️ **Some of you have work on your laptop that never reached GitHub** (e.g. the final Opus audit). The merge was built from what WAS on GitHub.
+So: **first save your local work to a NEW branch (Step 0)**, then wait for Rayan's "merged" message, then take a fresh copy (Step 1).
 🧊 **Feature freeze at 22:00.** From now on: **no new features**. Only fixes, content, rehearsal.
+🚫 **Never use `git push --force` / `-f`, `git reset --hard`, `git stash`, or delete your old folder.** Your old `advocall-v2` folder is your backup until Rayan says otherwise.
 
 ---
 
-## STEP 1: Re-sync (everyone, 3 min). Paste into Antigravity (replace YOURNAME)
+## STEP 0: Save your local work to GitHub (everyone, NOW, 3 min)
+Open Antigravity on your **existing `Desktop\hackathon\advocall-v2`** folder and paste (replace YOURNAME, lowercase: agastya / vaishnavi / yaso):
 ```
-In the terminal, inside my advocall-v2 folder, step by step, show me each result:
+Do this in the terminal inside my advocall-v2 folder, step by step, and show me every result.
+Never use --force, never use git reset, never use git stash, never delete anything.
 1. git status
-   If ANY files are changed or untracked, run: git stash -u   (the merge already contains a finished version of my work)
-2. git fetch origin
-3. git checkout YOURNAME
-4. git pull origin YOURNAME          (fast-forward: my branch now equals the merged main)
-5. git log --oneline -3              (the top lines must mention "Merge fixes" and "Checkpoint merge")
-6. npm install
-7. npm test                          (must say 78 passed)
-Then restart npm run dev and open http://localhost:3000.
+2. git log --oneline -5
+3. git fetch origin
+4. git log origin/YOURNAME..HEAD --oneline      (my commits that are NOT on GitHub yet)
+5. If step 1 shows ANY changed or untracked files, OR step 4 shows ANY commits, then:
+   a. git checkout -b YOURNAME-latest
+   b. git add -A
+   c. git commit -m "YOURNAME: latest local work (not pushed before)"     (if it says nothing to commit, that's fine)
+   d. git push origin YOURNAME-latest
+   e. git log origin/YOURNAME-latest --oneline -3
+   and then tell me exactly: PUSHED TO YOURNAME-latest
+   Otherwise tell me exactly: NOTHING LOCAL
+Do not change any code.
 ```
-🚫 **Never use `git push --force` (or `-f`).** If a pull or push is rejected, **don't retry and don't let the AI "fix" it**. Delete the `advocall-v2` folder and clone again exactly like the afternoon Part A. (A force-push would silently throw away the merge fixes in your folders.)
-If step 4 errors, same thing: delete `advocall-v2` and re-clone.
+Send Rayan a screenshot of the last lines ("PUSHED TO …-latest" or "NOTHING LOCAL").
+➡️ **Then wait.** Rayan/Claude merge your `-latest` branch carefully (it can't overwrite anything; it's a separate branch). Meanwhile do your **non-code** work below (deck / translations list / rehearsal).
 
-**Agastya:** your interrupted Opus session may have left changes on your laptop. Step 1 stashes them. Do **not** re-apply them; the audit is done in `main`.
+## STEP 1: Fresh copy (everyone, AFTER Rayan says "merged", 5 min)
+Close Antigravity. Open it on the **`Desktop\hackathon`** folder (not inside advocall-v2) and paste (replace YOURNAME):
+```
+Do this in the terminal inside my current folder (Desktop\hackathon), step by step, and show me each result.
+Never use --force. Do not touch the advocall-v2 folder.
+1. git clone https://github.com/Mohammed-Rayan07/advocall.git advocall-v3
+2. cd advocall-v3
+3. git checkout YOURNAME
+4. git log --oneline -3          (tell me the top line)
+5. npm install
+6. npm test                      (must say "passed" with 0 failed; tell me the number)
+7. In a separate terminal that keeps running: npm run dev
+```
+Then **File → Open Folder → `Desktop\hackathon\advocall-v3`** and work ONLY there from now on. Keep `advocall-v2` untouched (backup).
 
 ---
 
 ## VAISHNAVI: visual QA + deck (no new features)
 ```
-Read AGENTS.md and team/03_EVENING.md. Do NOT add features. Only fix visual bugs inside src/components/**.
+(Only after STEP 1, inside advocall-v3.) Read AGENTS.md and team/03_EVENING.md. Do NOT add features. Only fix visual bugs inside src/components/**.
 1. npm run dev. For EACH language (EN, हि, ಕ) and EACH demo in the Run demo menu (quick, UPI Hero, E-Commerce, Refusal,
    Telecom): check the dashboard at 1280x720 (projector) and in Present mode (press P). List every overlap, cut-off text,
    or wrong-language label in team/VAISHNAVI_EVENING_QA.md.
@@ -46,7 +67,7 @@ Read AGENTS.md and team/03_EVENING.md. Do NOT add features. Only fix visual bugs
 
 ## YASO: QA the merged app + review the new translations + backup video
 ```
-Read AGENTS.md and team/03_EVENING.md.
+(Only after STEP 1, inside advocall-v3.) Read AGENTS.md and team/03_EVENING.md.
 1. Open src/content/strings.ts. About 90 new keys were added in hi and kn at the merge (from "demo:" down to "browserCall:").
    Review every Hindi and Kannada value for natural, correct phrasing. Fix only real mistakes (keep {n}, {id}, {s}, {leg},
    {t}, {d}, {to}, {title} placeholders EXACTLY). Run npm test and npx tsx src/content/check.ts.

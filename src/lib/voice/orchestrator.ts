@@ -600,7 +600,7 @@ export async function handleVapiWebhook(deps: OrchestratorDeps, body: unknown): 
         text: msg.text,
         language: call.meta.leg === "advocate" ? ("en" as Lang) : call.meta.lang,
       };
-      if (call.meta.caseId && call.announced && !call.ended) {
+      if (call.meta.caseId && call.announced) { // late final lines after "ended" still belong in the transcript
         deps.emit({ type: "transcript", caseId: call.meta.caseId, data: { line: { callId: call.meta.callId, ...line } } });
       } else if (!call.meta.caseId) {
         call.buffer.push(line);

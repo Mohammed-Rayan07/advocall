@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/*
+ * ADVOCALL DESIGN TOKENS. Owner: Rayan (LOCKED).
+ * Tailwind v4: tokens live HERE (there is NO tailwind.config.js, never create one).
+ * Use them as classes: bg-bg, bg-surface, bg-surface-2, border-line, text-ink, text-muted,
+ * text-accent, bg-accent, text-good, text-warn, text-bad, text-money, font-mono ...
+ */
+
+@theme {
+  --color-bg: #07090d;
+  --color-surface: #0e1219;
+  --color-surface-2: #151b25;
+  --color-line: #232b38;
+  --color-ink: #e8edf5;
+  --color-muted: #8591a5;
+  --color-accent: #22d3ee; /* cyan: Advocall brand, agent speaking, live */
+  --color-accent-2: #818cf8; /* indigo: secondary highlights */
+  --color-good: #34d399; /* promised / resolved / money recovered */
+  --color-warn: #fbbf24; /* hold, waiting, deadline close */
+  --color-bad: #f87171; /* refused, failed, deadline missed */
+  --color-money: #fcd34d; /* ₹ amounts */
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius-card: 1rem;
+
+  --animate-pulse-dot: pulse-dot 1.4s ease-in-out infinite;
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.8); }
+  }
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* thin dark scrollbars for transcript panes */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}

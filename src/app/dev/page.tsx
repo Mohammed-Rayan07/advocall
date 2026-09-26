@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCaseStream } from "@/lib/stream/useCaseStream";
 import { formatINR, formatTime } from "@/lib/core/format";
+import { LivePanel } from "./LivePanel";
 
 export default function DevPage() {
   const { events, cases, connected, startDemo, reset } = useCaseStream();
@@ -27,6 +28,7 @@ export default function DevPage() {
         ))}
         <button className="rounded border border-bad px-3 py-1 text-bad" onClick={reset}>reset</button>
       </div>
+      <LivePanel />
       <h2 className="mt-4 text-muted">Cases ({cases.length})</h2>
       {cases.map((v) => (
         <div key={v.case.id} className="my-2 rounded border border-line p-3">

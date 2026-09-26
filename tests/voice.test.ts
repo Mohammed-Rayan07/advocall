@@ -313,3 +313,30 @@ describe("vapi message parsing + config", () => {
     expect(full.config.teamPhones).toEqual(["+919876500002", "+919876500001"]);
   });
 });
+
+describe("orchestrator allowlist on every leg", () => {
+  it("never dials a report-back to a number outside TEAM_PHONES, even for an adopted call", async () => {
+    const events: AdvocallEvent[] = [];
+    const deferred: (() => Promise<void>)[] = [];
+    const deps = makeDeps(events, deferred);
+    const dialed: string[] = [];
+    deps.dial = async ({ to }) => {
+      dialed.push(to);
+      return { id: `v${dialed.length}` };
+    };
+    // a webhook for a call we never started (e.g. spoofed), claiming to be an intake from a stranger
+    const meta = { callId: "call_spoof", leg: "intake", caseId: null, lang: "en" };
+    const m = (x: Record<string, unknown>) => ({ message: { ...x, call: { id: "vs", customer: { number: "+14155550100" }, assistant: { metadata: { advocall: meta } } } } });
+    await handleVapiWebhook(deps, m({ type: "status-update", status: "in-progress" }));
+    await handleVapiWebhook(
+      deps,
+      m({
+        type: "tool-calls",
+        toolCallList: [{ id: "t", name: "create_case", parameters: { user_name: "X", company: "Y Bank", category: "other", amount_rupees: 100, incident_date: "2026-09-20", description: "d" } }],
+      }),
+    );
+    await handleVapiWebhook(deps, m({ type: "end-of-call-report", endedReason: "assistant-ended-call" }));
+    while (deferred.length) await deferred.shift()!();
+    expect(dialed).not.toContain("+14155550100");
+  });
+});

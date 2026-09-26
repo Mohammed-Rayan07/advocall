@@ -9,7 +9,9 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  const { config } = readVoiceConfig();
+  const { config, mode } = readVoiceConfig();
+  // In mock mode (the stage demo) nobody outside can inject events through the public tunnel.
+  if (mode !== "live") return NextResponse.json({ error: "live mode is off (MODE=mock)" }, { status: 403 });
   if (config.webhookSecret && req.headers.get(WEBHOOK_SECRET_HEADER) !== config.webhookSecret) {
     return NextResponse.json({ error: "bad secret" }, { status: 401 });
   }

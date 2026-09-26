@@ -11,7 +11,9 @@
     "test:rules": "vitest run tests/rules.test.ts",
     "test:content": "vitest run tests/content.test.ts",
     "test:mock": "vitest run tests/mock.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:voice": "vitest run tests/voice.test.ts",
+    "voice:check": "tsx scripts/voice-check.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

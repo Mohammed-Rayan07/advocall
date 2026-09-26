@@ -246,6 +246,12 @@ function link(call: LiveCall, vapiCallId: string | null) {
 
 async function dialLeg(deps: OrchestratorDeps, call: LiveCall, assistant: VapiAssistant, customerName?: string) {
   announce(deps, call, "ringing");
+  if (!isAllowedPhone(deps.config, call.to)) {
+    // Belt and braces: every dial re-checks the allowlist (a spoofed webhook must never make us call a stranger).
+    log(deps, `${call.meta.leg} to ${call.to} blocked: not in TEAM_PHONES`);
+    await finalize(deps, call, "dial-blocked: not a team phone");
+    return;
+  }
   try {
     const { id } = await deps.dial({ to: call.to, customerName, assistant });
     link(call, id);

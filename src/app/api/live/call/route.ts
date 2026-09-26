@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  const { ready, missing } = readVoiceConfig();
+  const { ready, missing, mode } = readVoiceConfig();
+  if (mode !== "live") return NextResponse.json({ ok: false, error: "Set MODE=live in .env.local and restart npm run dev" }, { status: 400 });
   if (!ready) {
     return NextResponse.json({ ok: false, error: `Live calls need these in .env.local: ${missing.join(", ")}` }, { status: 400 });
   }

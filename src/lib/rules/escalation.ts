@@ -45,17 +45,17 @@ export function buildEscalationPacket(
   ];
 
   const ruleParagraph = match.claimable
-    ? `As per ${match.rule.sourceName} (${match.rule.sourceUrl}): ${match.rule.summary} The deadline in my case was ${deadline}` +
+    ? `Under ${match.rule.sourceName} (${match.rule.sourceUrl}): ${match.rule.summary} The statutory resolution deadline in this matter was ${deadline}` +
       (match.daysLate > 0
-        ? `, and it has been exceeded by ${match.daysLate} day${match.daysLate === 1 ? "" : "s"}. Compensation owed so far: ${formatINR(match.compensationPaise)}.`
+        ? `, which has been exceeded by ${match.daysLate} day${match.daysLate === 1 ? "" : "s"}. Statutory compensation accrued to date: ${formatINR(match.compensationPaise)}.`
         : ".")
-    : `I have raised this complaint with ${c.company} but it remains unresolved.`;
+    : `I have raised this complaint directly with ${c.company}, but the matter remains unresolved.`;
 
   const promiseBroken = !!commitment?.promisedBy && daysBetween(commitment.promisedBy, today) > 0;
   const callParagraph = commitment
-    ? `On my behalf, my assistant Advocall contacted ${c.company} customer care. They registered complaint number ${ticket} and promised resolution by ${promisedBy}.` +
-      (promiseBroken ? " This commitment has not been honoured." : " I am escalating because the issue is still unresolved.")
-    : `On my behalf, my assistant Advocall contacted ${c.company} customer care, but they did not register a complaint or give any resolution date.`;
+    ? `On my behalf, my AI representative Advocall contacted ${c.company} customer care. They registered complaint number ${ticket} and promised resolution by ${promisedBy}.` +
+      (promiseBroken ? " This commitment has not been honoured within the agreed timeframe." : " I am escalating this dispute as the matter remains unresolved.")
+    : `On my behalf, my AI representative Advocall contacted ${c.company} customer care, but they did not register a formal complaint or provide a resolution date.`;
 
   const body = [
     `Date: ${formatDate(today)}`,

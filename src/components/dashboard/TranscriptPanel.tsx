@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import type { TranscriptLine, Call, AdvocateState, Lang } from "@/types";
 import { formatTime } from "@/lib/core/format";
+import { t } from "@/content";
 import { Bot, Building2, User, MessageSquare } from "lucide-react";
 
 interface TranscriptPanelProps {
@@ -17,6 +18,7 @@ export default function TranscriptPanel({
   lines,
   calls,
   companyName = "Company",
+  lang = "en",
 }: TranscriptPanelProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -51,7 +53,7 @@ export default function TranscriptPanel({
         <div className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-accent" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-ink">
-            Live Transcript
+            {t("transcript", lang)}
           </h3>
           <span className="font-mono text-[11px] text-muted bg-surface-2 px-1.5 py-0.5 rounded border border-line">
             {lines.length} lines

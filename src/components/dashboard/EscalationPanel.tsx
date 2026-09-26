@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CaseView, Lang } from "@/types";
+import { t } from "@/content";
 import {
   ExternalLink,
   Phone,
@@ -22,6 +23,7 @@ interface EscalationPanelProps {
 export default function EscalationPanel({
   view,
   onEscalate,
+  lang = "en",
 }: EscalationPanelProps) {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -91,7 +93,7 @@ export default function EscalationPanel({
             ) : (
               <>
                 <Send className="h-4 w-4" />
-                <span>Deadline missed → Escalate</span>
+                <span>{t("escalate", lang)}</span>
               </>
             )}
           </button>

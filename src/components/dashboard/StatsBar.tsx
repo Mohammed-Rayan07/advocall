@@ -4,10 +4,12 @@ import { useEffect, useState, useRef } from "react";
 import { animate } from "motion/react";
 import { Activity, ShieldAlert, CheckCircle2, PhoneCall } from "lucide-react";
 import { formatINR } from "@/lib/core/format";
-import type { CaseView } from "@/types";
+import { t } from "@/content";
+import type { CaseView, Lang } from "@/types";
 
 interface StatsBarProps {
   cases: CaseView[];
+  lang?: Lang;
 }
 
 function AnimatedStat({
@@ -40,7 +42,7 @@ function AnimatedStat({
   );
 }
 
-export default function StatsBar({ cases }: StatsBarProps) {
+export default function StatsBar({ cases, lang = "en" }: StatsBarProps) {
   const activeCases = cases.filter(
     (c) => c.case.status !== "resolved" && c.case.status !== "failed"
   ).length;
@@ -60,7 +62,7 @@ export default function StatsBar({ cases }: StatsBarProps) {
 
   const stats = [
     {
-      label: "Active cases",
+      label: t("liveCases", lang),
       value: activeCases,
       isCurrency: false,
       color: "text-ink",
@@ -69,7 +71,7 @@ export default function StatsBar({ cases }: StatsBarProps) {
       badge: "In flight",
     },
     {
-      label: "₹ At stake",
+      label: t("atStake", lang),
       value: totalAtStakePaise,
       isCurrency: true,
       color: "text-money",
@@ -78,7 +80,7 @@ export default function StatsBar({ cases }: StatsBarProps) {
       badge: "Disputed",
     },
     {
-      label: "₹ Committed",
+      label: t("recovered", lang),
       value: totalCommittedPaise,
       isCurrency: true,
       color: "text-good",

@@ -2,6 +2,7 @@
 
 import type { RuleMatch, Lang } from "@/types";
 import { formatINR, formatDate } from "@/lib/core/format";
+import { t } from "@/content";
 import { ShieldCheck, ExternalLink, Scale, Clock, AlertTriangle, Coins, Info } from "lucide-react";
 
 interface RuleCardProps {
@@ -10,7 +11,11 @@ interface RuleCardProps {
   className?: string;
 }
 
-export default function RuleCard({ match, className = "" }: RuleCardProps) {
+export default function RuleCard({
+  match,
+  lang = "en",
+  className = "",
+}: RuleCardProps) {
   if (!match) {
     return (
       <div
@@ -89,7 +94,7 @@ export default function RuleCard({ match, className = "" }: RuleCardProps) {
         {/* Deadline */}
         <div className="rounded-lg border border-line bg-surface-2 p-2.5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-[11px] text-muted mb-1">
-            <span>Deadline</span>
+            <span>{t("deadline", lang)}</span>
             <Clock className="h-3.5 w-3.5 text-muted" />
           </div>
           <div className="font-mono text-xs font-bold text-ink truncate tabular-nums">
@@ -100,7 +105,7 @@ export default function RuleCard({ match, className = "" }: RuleCardProps) {
         {/* Days Late */}
         <div className="rounded-lg border border-line bg-surface-2 p-2.5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-[11px] text-muted mb-1">
-            <span>Days Late</span>
+            <span>{t("daysLate", lang)}</span>
             <AlertTriangle
               className={`h-3.5 w-3.5 ${
                 match.daysLate > 0 ? "text-bad" : "text-muted"
@@ -119,7 +124,7 @@ export default function RuleCard({ match, className = "" }: RuleCardProps) {
         {/* Compensation Owed */}
         <div className="rounded-lg border border-line bg-surface-2 p-2.5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-[11px] text-muted mb-1">
-            <span>Compensation</span>
+            <span>{t("compensation", lang)}</span>
             <Coins className="h-3.5 w-3.5 text-money" />
           </div>
           <div className="font-mono text-xs font-bold text-money tabular-nums">
@@ -130,7 +135,7 @@ export default function RuleCard({ match, className = "" }: RuleCardProps) {
         {/* Total at Stake */}
         <div className="rounded-lg border border-accent/30 bg-accent/5 p-2.5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-[11px] text-accent mb-1 font-medium">
-            <span>Total at Stake</span>
+            <span>{t("atStake", lang)}</span>
             <ShieldCheck className="h-3.5 w-3.5 text-accent" />
           </div>
           <div className="font-mono text-sm font-bold text-money tabular-nums">

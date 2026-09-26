@@ -48,7 +48,7 @@ export default function Dashboard() {
 
       <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-6 space-y-6">
         {/* Metric tiles */}
-        <StatsBar cases={cases} />
+        <StatsBar cases={cases} lang={lang} />
 
         {/* Zero state vs 3-Column layout */}
         {cases.length === 0 ? (

@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import type { Commitment, Lang } from "@/types";
 import { formatDate } from "@/lib/core/format";
+import { t } from "@/content";
 import { Ticket, CheckCircle2, Clock, Sparkles, XCircle } from "lucide-react";
 
 interface CommitmentCardProps {
@@ -10,7 +11,10 @@ interface CommitmentCardProps {
   lang?: Lang;
 }
 
-export default function CommitmentCard({ commitment }: CommitmentCardProps) {
+export default function CommitmentCard({
+  commitment,
+  lang = "en",
+}: CommitmentCardProps) {
   if (!commitment) {
     return (
       <div className="rounded-card border border-line bg-surface p-5 space-y-3">
@@ -81,7 +85,7 @@ export default function CommitmentCard({ commitment }: CommitmentCardProps) {
       {/* Hero Ticket Number */}
       <div className="rounded-xl bg-surface/90 border border-good/30 p-4 text-center">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-1">
-          Complaint Docket / Ticket Number
+          {t("ticket", lang)}
         </div>
         <div className="font-mono text-3xl sm:text-4xl font-black tracking-widest text-good select-all">
           {commitment.ticketNo}
@@ -94,7 +98,7 @@ export default function CommitmentCard({ commitment }: CommitmentCardProps) {
         <div className="rounded-lg bg-surface border border-line p-3 flex items-center justify-between">
           <span className="text-muted flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5 text-muted" />
-            <span>Promised by:</span>
+            <span>{t("promisedBy", lang)}:</span>
           </span>
           <span className="font-mono font-bold text-ink">
             {commitment.promisedBy ? formatDate(commitment.promisedBy) : "Immediate"}

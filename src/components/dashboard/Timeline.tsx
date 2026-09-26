@@ -2,6 +2,7 @@
 
 import type { AdvocallEvent, Lang } from "@/types";
 import { formatTime, formatINR, formatDate } from "@/lib/core/format";
+import { t } from "@/content";
 import {
   FilePlus,
   Activity,
@@ -21,7 +22,7 @@ interface TimelineProps {
   lang?: Lang;
 }
 
-export default function Timeline({ events }: TimelineProps) {
+export default function Timeline({ events, lang = "en" }: TimelineProps) {
   // Newest events at the top
   const sortedEvents = [...events].reverse();
 
@@ -135,7 +136,7 @@ export default function Timeline({ events }: TimelineProps) {
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-accent-2" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-ink">
-            Audit Timeline
+            {t("timeline", lang)}
           </h3>
         </div>
         <span className="font-mono text-[11px] text-muted">

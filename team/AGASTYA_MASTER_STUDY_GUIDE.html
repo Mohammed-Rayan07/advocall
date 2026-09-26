@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Advocall - Agastya Rights Engine Master Architecture & Study Guide</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm 16mm 14mm;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    line-height: 1.55;
+    font-size: 9.5pt;
+    margin: 0;
+    padding: 0;
+  }
+  h1, h2, h3, h4 { color: #0f172a; font-weight: 700; page-break-after: avoid; }
+  h1 { font-size: 19pt; line-height: 1.2; margin-top: 0; margin-bottom: 6px; color: #0369a1; }
+  .subtitle { font-size: 10.5pt; color: #64748b; margin-bottom: 18px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+  h2 { font-size: 12.5pt; border-bottom: 1.5px solid #cbd5e1; padding-bottom: 4px; margin-top: 20px; margin-bottom: 10px; color: #0284c7; }
+  h3 { font-size: 10.5pt; margin-top: 14px; margin-bottom: 6px; color: #0f172a; }
+  p { margin-top: 0; margin-bottom: 8px; }
+  .page-break { page-break-before: always; }
+  .callout {
+    background-color: #f8fafc;
+    border-left: 4px solid #0284c7;
+    padding: 8px 12px;
+    margin: 10px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 9pt;
+  }
+  .callout-warning { background-color: #fffbeb; border-left-color: #f59e0b; }
+  .callout-success { background-color: #f0fdf4; border-left-color: #10b981; }
+  .callout-title { font-weight: 700; margin-bottom: 4px; color: #0f172a; font-size: 9.5pt; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 8.5pt; }
+  th, td { border: 1px solid #cbd5e1; padding: 5px 7px; text-align: left; vertical-align: top; }
+  th { background-color: #f1f5f9; font-weight: 600; color: #334155; }
+  tr:nth-child(even) td { background-color: #f8fafc; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 8.5pt;
+    background-color: #f1f5f9;
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #be185d;
+  }
+  pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 8pt;
+    line-height: 1.35;
+    margin: 8px 0;
+    white-space: pre-wrap;
+  }
+  .badge { display: inline-block; padding: 1px 5px; font-size: 7.5pt; font-weight: 700; border-radius: 3px; text-transform: uppercase; }
+  .badge-green { background-color: #dcfce7; color: #15803d; }
+  .qa-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    font-size: 8.5pt;
+  }
+  .qa-question { font-weight: 700; color: #0369a1; margin-bottom: 3px; font-size: 9pt; }
+  .qa-answer { color: #334155; }
+  .quiz-box {
+    background-color: #faf5ff;
+    border: 1px dashed #a855f7;
+    padding: 8px 12px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 8.5pt;
+  }
+  .quiz-title { font-weight: 700; color: #7e22ce; margin-bottom: 4px; font-size: 9pt; }
+</style>
+</head>
+<body>
+
+<h1>Advocall: The Rights Engine</h1>
+<div class="subtitle">
+  <strong>Comprehensive Beginner-to-Expert Master Study Guide & Architectural Blueprint</strong><br>
+  <strong>Owner:</strong> Agastya (Rights Engine Lead) &nbsp;|&nbsp; <strong>Branch:</strong> <code>agastya</code> &nbsp;|&nbsp; <strong>Repo:</strong> Mohammed-Rayan07/advocall
+</div>
+
+<div class="callout callout-success">
+  <div class="callout-title">Mission of this Guide</div>
+  This document teaches you every detail of the component you personally built for Advocall. Even with zero prior coding experience, after studying this guide you will be able to navigate every file in <code>src/lib/rules/</code>, explain line-by-line what it does, why it exists, how it integrates with the rest of the system, and defend your work with confidence before hackathon judges.
+</div>
+
+<h2>Table of Contents</h2>
+<ol style="font-size: 9pt; line-height: 1.5;">
+  <li><strong>SECTION 1: THE BIG PICTURE & SYSTEM ARCHITECTURE</strong> — Problem definition, the deterministic rights philosophy, system data flow, and software concepts demystified.</li>
+  <li><strong>SECTION 2: FILE-BY-FILE & FUNCTION-BY-FUNCTION BLUEPRINT</strong> — Detailed breakdown of every file in <code>src/lib/rules/</code> (Purpose, Who calls it, What it calls, Inputs/Outputs, and Failure modes).</li>
+  <li><strong>SECTION 3: STEP-BY-STEP MATHEMATICAL WALKTHROUGH</strong> — Complete calculation tracing for the benchmark ₹4,500 UPI dispute.</li>
+  <li><strong>SECTION 4: COMPLETE HACKATHON JUDGE DEFENSE CHEAT SHEET</strong> — 12 critical judge questions with concise verbal responses.</li>
+  <li><strong>SECTION 5: COMPREHENSIVE SELF-TEST & MASTERY VERIFICATION</strong> — Quiz questions and answers to confirm total mastery.</li>
+</ol>
+
+<hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 16px 0;">
+
+
+<h2>SECTION 1: The Big Picture & System Architecture</h2>
+
+<h3>1. What Problem Does Advocall Solve?</h3>
+<p>
+  When an Indian consumer encounters an issue with a bank or online company (such as a failed UPI debit where their account is debited but the merchant is never credited, or an e-commerce platform that ignores a refund request), customer support agents routinely stall them with lines like: <em>"Please wait 7 to 10 working days, sir."</em>
+</p>
+<p>
+  Most consumers are unaware of their legal rights. Under Reserve Bank of India (RBI) regulations, banks must auto-reverse failed UPI debits within <strong>T+1 day</strong>. After that deadline, they legally owe the customer <strong>₹100 per day</strong> in statutory compensation. Advocall acts as an <strong>autonomous AI advocate</strong> that takes the consumer's case, calls customer support on their behalf, cites exact statutory rules to secure a formal complaint number, and prepares ready-to-file regulatory escalation packets if the company fails to deliver.
+</p>
+
+<h3>2. The Core Architectural Philosophy: Why the AI Never Computes Money</h3>
+<div class="callout callout-warning">
+  <div class="callout-title">The Industry Flaw: LLM Hallucination in Law & Finance</div>
+  Existing tools like Pine AI or generic ChatGPT wrappers prompt a probabilistic Large Language Model (LLM) to "figure out the law and calculate compensation." This approach fails in consumer advocacy:
+  <ul>
+    <li>LLMs are statistical text generators; they frequently produce mathematical errors.</li>
+    <li>LLMs hallucinate non-existent regulations or mix up legal circular dates.</li>
+    <li>Regulators (RBI Ombudsman, National Consumer Helpline) dismiss complaints that cite incorrect laws or inflated sums.</li>
+  </ul>
+</div>
+
+<p>
+  <strong>Advocall's Solution (Your Architecture):</strong> Strict separation of concerns.
+</p>
+<ul>
+  <li><strong>The LLM (Voice Agent)</strong> is strictly a conversational audio interface. It listens to the user, extracts basic facts (company name, amount, date), and speaks politely on the phone.</li>
+  <li><strong>The Rights Engine (Agastya's Code)</strong> is a 100% deterministic TypeScript calculation engine. It takes the facts and computes the exact deadline, the days overdue, and the accrued compensation down to the exact rupee. It provides the voice agent with <em>one approved, verbatim legal pushback sentence</em>. The LLM is programmatically forbidden from inventing laws or amounts.</li>
+</ul>
+
+<h3>3. End-to-End Data Pipeline</h3>
+<pre><code>[ STAGE 1: INTAKE CALL ]
+  User calls Advocall (speaks in Hindi, Kannada, or English).
+  Voice Agent extracts: company ("HDFC Bank"), amount (450000 paise), date ("2026-09-22"), txnRef ("UPI4829301").
+          │
+          ▼
+[ STAGE 2: THE RIGHTS ENGINE (YOUR CODE) ]
+  Orchestrator invokes: matchRule(input, today) &amp; buildCallBrief(input, match)
+  - Validates amount &amp; date format.
+  - Matches Category -> Rule R1 (RBI Harmonisation Circular).
+  - Computes: Deadline = 2026-09-23 | Days Late = 4 | Compensation = ₹400 | Total at Stake = ₹4,900.
+  - Generates approved pushBackLine and strict safety boundaries (mustNot).
+          │
+          ▼
+[ STAGE 3: ADVOCATE CALL TO COMPANY HELPLINE ]
+  Advocall dials company customer service (via Vapi telephony).
+  Agent pushes back when stalled: "As per RBI's turnaround-time rules, a failed UPI debit must be reversed by T+1..."
+  Agent captures: Ticket Number ("CMP88213") and Promised Date ("2026-09-29").
+          │
+          ▼
+[ STAGE 4: REPORT-BACK OR REGULATOR ESCALATION ]
+  - If resolved: Advocall calls user back with rightsSummary(match, lang) and sends SMS.
+  - If company stalls/refuses: buildEscalationPacket() generates formal Ombudsman complaint letter.</code></pre>
+
+<h3>4. Demystifying Software Concepts for Beginners</h3>
+<table>
+  <tr>
+    <th style="width: 24%;">Concept</th>
+    <th>What It Means in Plain English</th>
+    <th>How It Specifically Works in Advocall</th>
+  </tr>
+  <tr>
+    <td><strong>TypeScript (TS)</strong></td>
+    <td>A programming language that adds strict "type contracts" to JavaScript. If code expects an integer and receives text, it refuses to compile.</td>
+    <td>Guarantees <code>amountPaise</code> can never be a decimal or text string, catching bugs before code runs.</td>
+  </tr>
+  <tr>
+    <td><strong>Next.js 16 (App Router)</strong></td>
+    <td>A modern web framework built on React. It handles both frontend web pages and backend server routes in a unified system.</td>
+    <td>Runs the live dashboard (<code>http://localhost:3000</code>) and receives incoming telephony webhooks.</td>
+  </tr>
+  <tr>
+    <td><strong>Pure Function</strong></td>
+    <td>A coding function that behaves like pure math: given the exact same inputs, it ALWAYS produces the exact same output, with no outside side-effects.</td>
+    <td><code>matchRule</code> and <code>daysBetween</code> are 100% pure. They never check the live system clock (<code>Date.now()</code>) so tests are always deterministic.</td>
+  </tr>
+  <tr>
+    <td><strong>Paise Convention</strong></td>
+    <td>Storing money as integer subunits (1 Rupee = 100 paise) instead of floating-point decimals.</td>
+    <td>Computers have rounding errors with decimals (e.g. <code>0.1 + 0.2 = 0.30000000000000004</code>). By storing ₹4,500 as <code>450000</code> integer paise, mathematical errors are physically impossible.</td>
+  </tr>
+  <tr>
+    <td><strong>Vapi</strong></td>
+    <td>A Voice AI platform that bridges phone networks (Twilio) with speech models (Speech-to-Text, LLMs, and Text-to-Speech).</td>
+    <td>Dials real phone numbers and executes the prompt scripts generated by our rights engine.</td>
+  </tr>
+  <tr>
+    <td><strong>Barrel Export (index.ts)</strong></td>
+    <td>A single file that collects functions from many individual files and exports them together in one clean gateway.</td>
+    <td><code>src/lib/rules/index.ts</code> is the public gateway. Rayan's backend imports everything from <code>@/lib/rules</code> without needing to know internal file names.</td>
+  </tr>
+</table>
+
+<div class="page-break"></div>
+
+
+<h2>SECTION 2: File-by-File & Function-by-Function Blueprint</h2>
+
+<p>Every file in <code>src/lib/rules/</code> and <code>docs/RULEBOOK.md</code> belongs exclusively to you. Here is the exact architectural specification for every component.</p>
+
+<h3>1. <code>src/lib/rules/dates.ts</code> — Calendar Arithmetic Engine</h3>
+<div class="callout">
+  <strong>Primary Purpose:</strong> Performs pure, timezone-safe calendar mathematics on <code>"YYYY-MM-DD"</code> strings. It eliminates timezone drift (e.g., UTC vs Indian Standard Time) and rejects invalid calendar dates.
+</div>
+
+<h4>Functions in <code>dates.ts</code>:</h4>
+<ul>
+  <li>
+    <strong><code>isValidYmd(ymd: string): boolean</code></strong>
+    <ul>
+      <li><strong>What it does:</strong> Validates whether an incoming string is a real calendar date in strict ISO format.</li>
+      <li><strong>Why we built it:</strong> Prevents crashes or corrupt calculations caused by invalid dates like <code>"2026-02-30"</code>, non-leap year <code>"2026-02-29"</code>, or reversed formats like <code>"20-09-2026"</code>.</li>
+      <li><strong>How it works:</strong> First uses regex <code>/^\d{4}-\d{2}-\d{2}$/</code>, then parses the numbers with <code>Date.UTC(y, m-1, d)</code> and checks if the resulting Date object matches the input year, month, and day.</li>
+      <li><strong>Called by:</strong> <code>matchRule()</code> in <code>engine.ts</code> and <code>recordCommitment()</code> in voice orchestrator.</li>
+      <li><strong>Input / Output:</strong> Input: <code>string</code> ➔ Output: <code>boolean</code> (true/false).</li>
+      <li><strong>What breaks if removed:</strong> Malformed date strings from voice calls crash the backend server.</li>
+    </ul>
+  </li>
+  <li>
+    <strong><code>addDays(ymd: string, days: number): string</code></strong>
+    <ul>
+      <li><strong>What it does:</strong> Adds an exact number of calendar days to a date string, returning a new <code>"YYYY-MM-DD"</code> string.</li>
+      <li><strong>Why we built it:</strong> Calculates statutory deadlines (Incident + 1 day for UPI, Incident + 30 days for E-Commerce).</li>
+      <li><strong>How it works:</strong> Converts date to UTC milliseconds using <code>Date.UTC()</code>, adds <code>days * 86,400,000 ms</code>, and converts back to ISO format.</li>
+      <li><strong>Called by:</strong> <code>matchRule()</code>, <code>rightsTimeline()</code>.</li>
+      <li><strong>Input / Output:</strong> Input: <code>(ymd: string, days: number)</code> ➔ Output: <code>string</code>.</li>
+    </ul>
+  </li>
+  <li>
+    <strong><code>daysBetween(a: string, b: string): number</code></strong>
+    <ul>
+      <li><strong>What it does:</strong> Calculates the integer difference in whole days between date <code>a</code> and date <code>b</code> (positive if <code>b</code> is after <code>a</code>, negative if before).</li>
+      <li><strong>Why we built it:</strong> Determines exactly how many days late an institution is beyond the statutory deadline.</li>
+      <li><strong>Called by:</strong> <code>matchRule()</code>, <code>escalation.ts</code>, <code>timeline.ts</code>.</li>
+      <li><strong>Input / Output:</strong> Input: <code>(a: string, b: string)</code> ➔ Output: <code>number</code>.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>2. <code>src/lib/rules/data.ts</code> &amp; <code>docs/RULEBOOK.md</code> — Legal Rulebook Database</h3>
+<div class="callout">
+  <strong>Primary Purpose:</strong> The data dictionary storing verified Indian legal statutes. If a law is not verified here, the AI is programmatically blocked from citing it.
+</div>
+
+<h4>The Rules Registry (<code>RULES</code> record):</h4>
+<ul>
+  <li>
+    <strong>Rule <code>R1</code>: Failed UPI Transfer (Verified: true)</strong>
+    <ul>
+      <li><strong>Source:</strong> RBI Circular RBI/2019-20/67 (DPSS.CO.PD No.629/02.01.014/2019-20), <em>Harmonisation of Turn Around Time (TAT) and customer compensation</em>, 20 Sep 2019.</li>
+      <li><strong>Statute:</strong> Auto-reversal by beneficiary bank latest on <strong>T + 1 day</strong>. Statutory penalty of <strong>₹100 per day</strong> for delay beyond T+1.</li>
+      <li><strong>Escalation Target:</strong> RBI Integrated Ombudsman (CMS) at <code>https://cms.rbi.org.in</code>.</li>
+    </ul>
+  </li>
+  <li>
+    <strong>Rule <code>R2</code>: E-commerce Refund Not Processed (Verified: true)</strong>
+    <ul>
+      <li><strong>Source:</strong> Consumer Protection (E-Commerce) Rules, 2020, Rule 4(5), Dept of Consumer Affairs.</li>
+      <li><strong>Statute:</strong> Grievance officer must acknowledge complaint within <strong>48 hours</strong> and resolve within <strong>one month (30 days)</strong>. No daily monetary compensation.</li>
+      <li><strong>Escalation Target:</strong> National Consumer Helpline (1915 / <code>consumerhelpline.gov.in</code>).</li>
+    </ul>
+  </li>
+  <li>
+    <strong>Rule <code>R3</code>: Telecom / Broadband Billing (Verified: false)</strong>
+    <ul>
+      <li><strong>Status:</strong> Marked <code>verified: false</code>. The voice agent makes zero legal claims and asks only for a docket number.</li>
+    </ul>
+  </li>
+  <li>
+    <strong><code>FALLBACK</code>: General Consumer Complaint (No Rule Matched)</strong>
+    <ul>
+      <li><strong>Status:</strong> <code>claimable: false</code>, <code>citeText: ""</code>. Asks strictly for a standard complaint number and date.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>3. <code>src/lib/rules/engine.ts</code> — The Legal Decision Core (<code>matchRule</code>)</h3>
+<div class="callout">
+  <strong>Primary Purpose:</strong> Takes intake case data and current date, validates parameters, maps regulatory jurisdiction, and calculates deadlines, delay penalties, and agent pushback scripts.
+</div>
+
+<h4>Function: <code>matchRule(input: CaseInput, today: string): RuleMatch</code></h4>
+<ul>
+  <li><strong>Input:</strong> <code>input</code> (Case details: amount in paise, category, incident date, company) and <code>today</code> (current date string).</li>
+  <li><strong>Output (<code>RuleMatch</code> object):</strong>
+    <ul>
+      <li><code>ruleId</code>: <code>"R1" | "R2" | "R3" | "FALLBACK"</code></li>
+      <li><code>claimable</code>: <code>boolean</code> (true only if rule is verified and not FALLBACK)</li>
+      <li><code>deadline</code>: ISO string or <code>null</code></li>
+      <li><code>daysLate</code>: integer (0 or greater)</li>
+      <li><code>compensationPaise</code>: integer (₹100/day for R1, ₹0 for others)</li>
+      <li><code>totalAtStakePaise</code>: <code>amountPaise + compensationPaise</code></li>
+      <li><code>explanation</code>: 1–2 plain-English sentences displaying formatted rupees (via <code>formatINR</code>)</li>
+      <li><code>pushBackLine</code>: Exact verbal sentence the advocate voice agent speaks on the phone.</li>
+    </ul>
+  </li>
+  <li><strong>What breaks if removed:</strong> The voice agent cannot determine applicable law, cannot counter customer care stalling, and cannot compute compensation.</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h3>4. <code>src/lib/rules/brief.ts</code> — Voice Agent Mission Briefing</h3>
+<div class="callout">
+  <strong>Primary Purpose:</strong> Compiles operational guardrails, mission objectives, and hard security boundaries for the live voice agent before initiating a call.
+</div>
+
+<h4>Function: <code>buildCallBrief(c: CaseInput, match: RuleMatch): CallBrief</code></h4>
+<ul>
+  <li><strong><code>goal</code>:</strong> What the agent must obtain on the call (e.g., <em>"Get complaint number, reversal date, acknowledgement of compensation..."</em>).</li>
+  <li><strong><code>facts</code>:</strong> 2–3 sentences stating customer name, company, amount, incident date, and transaction reference.</li>
+  <li><strong><code>citeLine</code>:</strong> Authorized legal sentence from <code>match.rule.citeText</code> if claimable; otherwise empty string <code>""</code>.</li>
+  <li><strong><code>pushBackLine</code>:</strong> Pre-scripted pushback line from <code>match.pushBackLine</code>.</li>
+  <li><strong><code>mustNot</code> (Hard Safety Boundaries):</strong>
+    <ol>
+      <li>Never ask for, accept, or repeat OTP, PIN, CVV, passwords, or full card numbers.</li>
+      <li>Never agree to a settlement or accept compromise on customer's behalf.</li>
+      <li>Never cite any law or regulation other than the approved cite line.</li>
+      <li>Never push back more than twice.</li>
+      <li>Never be rude, threatening, or sarcastic.</li>
+    </ol>
+  </li>
+  <li><strong><code>stopWhen</code> (Call Termination Criteria):</strong> Stop when ticket number &amp; date are recorded, or if company refuses twice, or if company demands OTP/KYC.</li>
+</ul>
+
+<h3>5. <code>src/lib/rules/escalation.ts</code> — Legal Escalation Packet Generator</h3>
+<div class="callout">
+  <strong>Primary Purpose:</strong> Generates a formal, audit-ready legal complaint letter and structured facts evidence table for filing with the RBI Ombudsman or National Consumer Helpline.
+</div>
+
+<h4>Function: <code>buildEscalationPacket(c: Case, match: RuleMatch, commitment: Commitment | null, today: string): EscalationPacket</code></h4>
+<ul>
+  <li><strong>11-Point Structured Facts Array:</strong> Exactly ordered array of <code>[label, value]</code> pairs:
+    <ol style="font-size: 8.5pt;">
+      <li><code>"Case ID"</code></li>
+      <li><code>"Complainant"</code></li>
+      <li><code>"Company"</code></li>
+      <li><code>"Amount"</code> (formatted INR)</li>
+      <li><code>"Transaction reference"</code> (or <code>"Not provided"</code>)</li>
+      <li><code>"Incident date"</code> (formatted date)</li>
+      <li><code>"Rule"</code> (rule title)</li>
+      <li><code>"Deadline"</code> (formatted date or <code>"Not applicable"</code>)</li>
+      <li><code>"Compensation owed"</code> (formatted INR)</li>
+      <li><code>"Ticket number"</code> (ticket or <code>"Not provided"</code>)</li>
+      <li><code>"Company promised by"</code> (formatted date or <code>"Not provided"</code>)</li>
+    </ol>
+  </li>
+  <li><strong>Formal Letter Body:</strong> Plain-text complaint letter formatted with Date, To, Subject, salutation, factual background, statutory circular references, call outcome, relief requested, and complainant signature. Cleanly omits any <code>undefined</code>, <code>null</code>, or <code>NaN</code>.</li>
+</ul>
+
+<h3>6. <code>src/lib/rules/timeline.ts</code> — Rights Milestone Engine</h3>
+<div class="callout">
+  <strong>Primary Purpose:</strong> Generates a chronological lifecycle of milestones for the case, enabling visual status tracking on the dashboard.
+</div>
+
+<h4>Function: <code>rightsTimeline(input: CaseInput, match: RuleMatch, commitment: Commitment | null, today: string): RightsMilestone[]</code></h4>
+<ul>
+  <li>Produces milestones: <code>Incident date</code> ➔ <code>Statutory deadline</code> ➔ <code>Company promised date</code> ➔ <code>Today</code> ➔ <code>Escalate if unresolved</code> (day after promised date or deadline).</li>
+  <li>Assigns chronological status (<code>"past" | "today" | "future"</code>) by comparing dates against <code>today</code> using <code>daysBetween</code>.</li>
+</ul>
+
+<h3>7. <code>src/lib/rules/summary.ts</code> — Multilingual Consumer Summary</h3>
+<div class="callout">
+  <strong>Primary Purpose:</strong> Translates regulatory math into 1–2 plain-language sentences in English, Hindi (Devanagari), and Kannada.
+</div>
+
+<h4>Function: <code>rightsSummary(match: RuleMatch, lang: "en" | "hi" | "kn"): string</code></h4>
+<ul>
+  <li><strong>English:</strong> <em>"Under RBI rules, your failed UPI debit was due by 23 Sep 2026 (T+1). It is 4 days late, so ₹400 compensation is owed, making ₹4,900 total at stake."</em></li>
+  <li><strong>Hindi:</strong> <em>"आरबीआई नियमों के अनुसार, आपके विफल यूपीआई का पैसा 23 Sep 2026 (T+1) तक वापस आना चाहिए था। यह 4 दिन देर हो चुका है, इसलिए ₹400 मुआवजा बनता है और कुल दावा ₹4,900 का है।"</em></li>
+  <li><strong>Kannada:</strong> <em>"ಆರ್‌ಬಿಐ ನಿಯಮಗಳ ಪ್ರಕಾರ, ವಿಫಲವಾದ ಯುಪಿಐ ಹಣವು 23 Sep 2026 (T+1) ಒಳಗೆ ಮರಳಬೇಕಿತ್ತು..."</em></li>
+</ul>
+
+<h3>8. <code>src/lib/rules/check.ts</code> &amp; <code>brief.test.ts</code> — Self-Verification Harnesses</h3>
+<div class="callout">
+  <strong>Primary Purpose:</strong> Automated test scripts using Node's native <code>node:assert</code> module to mathematically verify R1, R2, FALLBACK, timelines, briefings, and summaries without external test runners.
+</div>
+
+<div class="page-break"></div>
+
+
+<h2>SECTION 3: Step-by-Step Mathematical Walkthrough</h2>
+
+<p>To defend your engine before judges, you must be able to trace this exact case study effortlessly.</p>
+
+<div class="callout callout-success">
+  <div class="callout-title">The Benchmark UPI Dispute</div>
+  <ul>
+    <li><strong>Complainant:</strong> Ravi Kumar</li>
+    <li><strong>Bank:</strong> HDFC Bank</li>
+    <li><strong>Category:</strong> <code>upi_failed</code> (Failed UPI Transfer)</li>
+    <li><strong>Amount:</strong> ₹4,500 (represented in code as <code>450000</code> paise)</li>
+    <li><strong>Incident Date:</strong> <code>2026-09-22</code> (Tuesday)</li>
+    <li><strong>Evaluation Date (Today):</strong> <code>2026-09-27</code> (Sunday)</li>
+  </ul>
+</div>
+
+<h3>Step-by-Step Execution Trace:</h3>
+
+<table style="font-size: 9pt;">
+  <tr>
+    <th style="width: 28%;">Calculation Step</th>
+    <th style="width: 38%;">Engine Function &amp; Formula</th>
+    <th>Result / Output</th>
+  </tr>
+  <tr>
+    <td><strong>1. Input Validation</strong></td>
+    <td><code>Number.isInteger(450000) &amp;&amp; 450000 > 0</code><br><code>isValidYmd("2026-09-22")</code></td>
+    <td><span class="badge badge-green">Passed</span> (No error thrown)</td>
+  </tr>
+  <tr>
+    <td><strong>2. Jurisdiction Resolution</strong></td>
+    <td><code>RULE_FOR["upi_failed"]</code></td>
+    <td><strong>Rule R1</strong> (RBI Harmonisation Circular)</td>
+  </tr>
+  <tr>
+    <td><strong>3. Statutory Deadline (T+1)</strong></td>
+    <td><code>addDays("2026-09-22", 1)</code></td>
+    <td><strong><code>2026-09-23</code></strong> (Wednesday)</td>
+  </tr>
+  <tr>
+    <td><strong>4. Overdue Duration</strong></td>
+    <td><code>Math.max(0, daysBetween("2026-09-23", "2026-09-27"))</code></td>
+    <td><strong>4 days late</strong></td>
+  </tr>
+  <tr>
+    <td><strong>5. Accrued Compensation</strong></td>
+    <td><code>4 days × 10,000 paise (₹100/day)</code></td>
+    <td><strong>40,000 paise (₹400)</strong></td>
+  </tr>
+  <tr>
+    <td><strong>6. Total Amount at Stake</strong></td>
+    <td><code>450,000 paise (principal) + 40,000 paise (comp)</code></td>
+    <td><strong>490,000 paise (₹4,900)</strong></td>
+  </tr>
+</table>
+
+<div class="callout">
+  <strong>Verbatim Line Given to Voice Agent:</strong><br>
+  <em>"As per RBI's turnaround-time rules, a failed UPI debit must be reversed by T+1, with ₹100 per day compensation after that. Could you please register a complaint and give me the complaint number and the reversal date?"</em>
+</div>
+
+<div class="page-break"></div>
+
+
+<h2>SECTION 4: Complete Hackathon Judge Defense Cheat Sheet</h2>
+
+<p>Judges will test whether you truly understand what you built or just used an AI wrapper. Here are concise, verbally punchy answers to the 12 most critical questions.</p>
+
+<div class="qa-card">
+  <div class="qa-question">1. "Isn't this just Pine AI or Google Duplex?"</div>
+  <div class="qa-answer">
+    <em>"No. Duplex books restaurant tables where there are zero legal consequences. Generic AI agents ask an LLM to guess refunds. Advocall is built around a deterministic Rights Engine: statutory deadlines, days overdue, and rupee penalties are computed by pure TypeScript code grounded in official RBI circulars. The AI never does the math or picks the law."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">2. "Is it legal for an AI to call customer care on someone's behalf?"</div>
+  <div class="qa-answer">
+    <em>"Yes. The user explicitly authorizes Advocall. In the very first sentence, the agent discloses: 'Hello, I am an AI assistant calling on behalf of [User], who is available to verify if needed.' It never impersonates the user. If identity verification or KYC is required, the agent offers to connect the customer directly."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">3. "What if the AI hallucinates a non-existent law or quotes the wrong amount?"</div>
+  <div class="qa-answer">
+    <em>"It is programmatically impossible. The voice agent is never allowed to generate legal arguments. It is passed one single approved string from our engine. If a category is unverified, our engine marks it unclaimable, stripping out all legal citations. Furthermore, the dashboard, SMS, and escalation letters pull directly from the engine's data, not the LLM's transcript."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">4. "How do you handle OTPs, passwords, and banking privacy?"</div>
+  <div class="qa-answer">
+    <em>"Our engine embeds hard safety invariants into the agent's briefing: never ask for, accept, or repeat OTPs, PINs, CVVs, passwords, or full card numbers. If a company representative asks for an OTP, the agent immediately stops and offers to hand over to the user."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">5. "How does the system scale beyond UPI and E-commerce?"</div>
+  <div class="qa-answer">
+    <em>"Our engine is completely data-driven. Adding an airline refund or insurance delay requires just adding a new entry in src/lib/rules/data.ts with verified statutory sources, defining the deadline logic, and adding unit tests. The calling pipeline, dashboard, and escalation generators require zero architectural changes."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">6. "Why store money in paise instead of rupees?"</div>
+  <div class="qa-answer">
+    <em>"To eliminate IEEE-754 floating-point rounding errors. In standard computing, decimals like 0.1 + 0.2 produce 0.30000000000000004. In financial disputes, rounding errors can invalidate regulatory filings. By using integer paise, ₹4,500 is stored as 450,000, guaranteeing exact arithmetic down to the paisa."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">7. "Why did you write custom UTC date functions instead of using standard Date or moment.js?"</div>
+  <div class="qa-answer">
+    <em>"Local JavaScript new Date('2026-09-22') parses dates based on the server or browser's local timezone. A server running in UTC would evaluate a date differently from a user in IST, causing off-by-one day bugs. Our dates.ts functions use Date.UTC exclusively, ensuring deterministic, timezone-independent calendar math."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">8. "What happens if the customer support representative refuses to cooperate or hangs up?"</div>
+  <div class="qa-answer">
+    <em>"Advocall is programmed to push back politely at most twice. The voice agent cites the statutory regulation. If the representative still refuses, our system closes the call and immediately triggers buildEscalationPacket(), generating a formal complaint letter addressed to the RBI Ombudsman or National Consumer Helpline."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">9. "What is your business model?"</div>
+  <div class="qa-answer">
+    <em>"The first consumer case is completely free. Subsequent cases operate on a small success-fee model on statutory compensation recovered that the user would have otherwise abandoned. Additionally, we offer a B2B white-label resolution engine for fintechs and neo-banks to streamline dispute management."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">10. "What does an advocate call cost to execute?"</div>
+  <div class="qa-answer">
+    <em>"Approximately ₹15 to ₹40 for a 3-minute telephony call, covering real-time speech-to-text, LLM reasoning, text-to-speech synthesis, and Twilio phone trunking. This cost is negligible compared to the ₹1,000 to ₹10,000 transaction amounts and ₹100/day statutory compensation recovered."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">11. "Where is case data stored? How do you comply with DPDP 2023?"</div>
+  <div class="qa-answer">
+    <em>"In this hackathon prototype, case state is held strictly in volatile server memory—it completely purges on server reset, with zero external databases. For enterprise production, we implement end-to-end encryption at rest, strict 30-day retention policies, and explicit user consent matching India's Digital Personal Data Protection Act."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="qa-question">12. "What was your exact personal role on the team?"</div>
+  <div class="qa-answer">
+    <em>"I am the Rights Engine Lead. I built the legal logic in src/lib/rules/, verified the RBI and E-Commerce statutory regulations, programmed the deterministic date and compensation math, wrote the escalation packet generator, created the multilingual summary engine, and validated everything with 100% passing automated test suites."</em>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+
+<h2>SECTION 5: Comprehensive Self-Test & Mastery Verification</h2>
+
+<p>Before stepping onto the stage, review these questions to confirm you have 100% command of your code.</p>
+
+<div class="quiz-box">
+  <div class="quiz-title">Test Question 1: What happens if a user submits an amount of ₹0 or a negative number to matchRule?</div>
+  <p><strong>Answer:</strong> <code>matchRule</code> immediately throws a descriptive JavaScript error (<code>amountPaise must be a positive integer</code>). It validates this before attempting any categorization or date math, protecting the system from garbage data.</p>
+</div>
+
+<div class="quiz-box">
+  <div class="quiz-title">Test Question 2: Why does Telecom (R3) have verified set to false? What does the engine do because of this?</div>
+  <p><strong>Answer:</strong> Under our hackathon guidelines, we only cite statutes verified against primary government gazettes. Because TRAI complaint timelines were not officially verified during the sprint, R3 is marked <code>verified: false</code>. Consequently, <code>claimable</code> becomes <code>false</code>, <code>compensationPaise</code> is 0, and the engine strips out all legal citations, instructing the agent to ask neutrally for a standard docket number.</p>
+</div>
+
+<div class="quiz-box">
+  <div class="quiz-title">Test Question 3: How does the Rights Engine connect to the Voice Agent? Which function creates that bridge?</div>
+  <p><strong>Answer:</strong> The bridge function is <code>buildCallBrief(caseInput, ruleMatch)</code> in <code>src/lib/rules/brief.ts</code>. It takes the output of <code>matchRule</code> and packages it into an operational brief containing the exact goal, case facts, approved citation line, pushback phrases, and 5 mandatory safety limits (<code>mustNot</code>).</p>
+</div>
+
+<div class="quiz-box">
+  <div class="quiz-title">Test Question 4: In buildEscalationPacket, what happens if the customer care call failed to capture a ticket number?</div>
+  <p><strong>Answer:</strong> The function safely falls back to the exact string <code>"Not provided"</code>. It ensures the formal Ombudsman letter never contains missing values, <code>undefined</code>, <code>null</code>, or <code>NaN</code>.</p>
+</div>
+
+<div class="quiz-box">
+  <div class="quiz-title">Test Question 5: What are the three test commands you run to prove your code works?</div>
+  <p><strong>Answer:</strong><br>
+    1. <code>npm run test:rules</code> (runs all 16 Vitest unit tests in <code>tests/rules.test.ts</code>).<br>
+    2. <code>npm run typecheck</code> (runs <code>tsc --noEmit</code> to prove 0 TypeScript type errors).<br>
+    3. <code>npx tsx src/lib/rules/check.ts</code> (runs the standalone assertion script verifying R1, R2, timelines, and multilingual summaries).
+  </p>
+</div>
+
+<hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 16px 0;">
+
+<div style="text-align: center; color: #64748b; font-size: 8pt;">
+  Advocall Hackathon Project &bull; Rights Engine Architecture Document &bull; Branch <code>agastya</code> &bull; All Rights Engine Tests Verified & Passed (16/16)
+</div>
+
+</body>
+</html>

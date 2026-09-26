@@ -91,6 +91,7 @@ interface LiveState {
   byVapi: Map<string, string>;
   cases: Map<string, LiveCase>;
   pendingWeb: Map<string, PendingWebLeg>; // browser legs waiting for someone to press "answer"
+  claimedWeb: Map<string, PendingWebLeg>; // answered, kept so a failed browser start can put it back
   callSeq: number;
   caseSeq: number;
 }
@@ -104,6 +105,7 @@ function state(): LiveState {
     byVapi: new Map(),
     cases: new Map(),
     pendingWeb: new Map(),
+    claimedWeb: new Map(),
     callSeq: 0,
     caseSeq: FIRST_LIVE_CASE,
   });
@@ -116,6 +118,7 @@ export function resetLive() {
   s.byVapi.clear();
   s.cases.clear();
   s.pendingWeb.clear();
+  s.claimedWeb.clear();
   s.caseSeq = FIRST_LIVE_CASE;
 }
 
@@ -522,7 +525,22 @@ export function claimWebLeg(role: WebRole, callId?: string): PendingWebLeg | nul
   const p = [...s.pendingWeb.values()].find((x) => x.role === role && (!callId || x.callId === callId));
   if (!p) return null;
   s.pendingWeb.delete(p.callId);
+  s.claimedWeb.set(p.callId, p);
   return p;
+}
+
+/**
+ * The browser answered but the call never started (mic denied, SDK failed, http instead of https).
+ * No webhook will ever come, so put the leg back to ringing, unless the call really began.
+ */
+export function releaseWebLeg(callId: string): boolean {
+  const s = state();
+  const p = s.claimedWeb.get(callId);
+  const call = s.calls.get(callId);
+  if (!p || !call || call.inProgress || call.ended) return false;
+  s.claimedWeb.delete(callId);
+  s.pendingWeb.set(callId, p);
+  return true;
 }
 
 /** Webhook auth: the global secret (phone legs) or the one-call token of the browser leg named in the payload. */

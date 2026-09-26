@@ -93,7 +93,15 @@ function TalkInner() {
     };
   }, [phase, role]);
 
-  const run = useCallback(async (publicKey: string, assistant: unknown, legName: string) => {
+  const run = useCallback(async (publicKey: string, assistant: unknown, legName: string, claimedCallId: string | null) => {
+    // If an answered leg never starts (mic denied, SDK blocked, http page), hand it back so it rings again.
+    let started = false;
+    let released = false;
+    const giveBack = () => {
+      if (!claimedCallId || started || released) return;
+      released = true;
+      fetch(`/api/live/web/release?callId=${encodeURIComponent(claimedCallId)}`, { method: "POST" }).catch(() => {});
+    };
     setError("");
     setLines([]);
     setLeg(legName);
@@ -102,7 +110,10 @@ function TalkInner() {
       const Vapi = await loadVapi();
       const vapi = new Vapi(publicKey);
       vapiRef.current = vapi;
-      vapi.on("call-start", () => setPhase("live"));
+      vapi.on("call-start", () => {
+        started = true;
+        setPhase("live");
+      });
       vapi.on("call-end", () => {
         setPhase("idle");
         setVolume(0);
@@ -112,6 +123,7 @@ function TalkInner() {
       vapi.on("error", (e) => {
         setError(`Call error: ${JSON.stringify(e).slice(0, 300)}`);
         setPhase((p) => (p === "connecting" ? "idle" : p));
+        giveBack();
       });
       vapi.on("message", (m) => {
         const msg = m as { type?: string; transcriptType?: string; role?: string; transcript?: string };
@@ -121,10 +133,14 @@ function TalkInner() {
         }
       });
       const call = await vapi.start(assistant);
-      if (!call) setPhase("idle"); // start failed; the "error" event carries the reason
+      if (!call) {
+        setPhase("idle"); // start failed; the "error" event carries the reason
+        giveBack();
+      }
     } catch (e) {
       setError((e as Error).message);
       setPhase("idle");
+      giveBack();
     }
   }, []);
 
@@ -137,14 +153,14 @@ function TalkInner() {
     });
     const j = (await r.json()) as { ok: boolean; error?: string; publicKey?: string; assistant?: unknown };
     if (!j.ok || !j.publicKey) return setError(j.error ?? "could not start");
-    await run(j.publicKey, j.assistant, "intake");
+    await run(j.publicKey, j.assistant, "intake", null);
   }
 
   async function answer(r: Ringing) {
     const res = await fetch(`/api/live/web/claim?role=${role}&callId=${encodeURIComponent(r.callId)}`, { method: "POST" });
     const j = (await res.json()) as { ok: boolean; error?: string; publicKey?: string; assistant?: unknown; leg?: string };
     if (!j.ok || !j.publicKey) return setError(j.error ?? "could not answer");
-    await run(j.publicKey, j.assistant, j.leg ?? r.leg);
+    await run(j.publicKey, j.assistant, j.leg ?? r.leg, r.callId);
   }
 
   const hangUp = () => vapiRef.current?.stop();

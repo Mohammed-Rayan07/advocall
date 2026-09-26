@@ -12,6 +12,7 @@ import {
   handleVapiWebhook,
   LiveCallError,
   peekWebLegs,
+  releaseWebLeg,
   startWebIntake,
   resetLive,
   startIntakeCall,
@@ -404,5 +405,34 @@ describe("browser (web) channel: the no-Twilio fallback", () => {
     expect(authorizeWebhook(deps.config, tokens[0]!, bodyFor(assistants[1]))).toBe(false); // token of another call
     expect(authorizeWebhook(deps.config, "GLOBAL-SECRET", bodyFor(assistants[1]))).toBe(true);
     expect(authorizeWebhook(deps.config, null, bodyFor(assistants[1]))).toBe(false);
+  });
+});
+
+describe("browser leg release (failed start must not strand a case)", () => {
+  it("puts an answered-but-never-started leg back to ringing, but never one that really started", async () => {
+    const events: AdvocallEvent[] = [];
+    const deferred: (() => Promise<void>)[] = [];
+    const deps = makeDeps(events, deferred);
+    const { assistant } = startWebIntake(deps, { lang: "en" });
+    const m = (x: Record<string, unknown>) => ({ message: { ...x, call: { id: "w1", assistant: { metadata: assistant.metadata } } } });
+    await handleVapiWebhook(deps, m({ type: "status-update", status: "in-progress" }));
+    await handleVapiWebhook(
+      deps,
+      m({
+        type: "tool-calls",
+        toolCallList: [{ id: "t", name: "create_case", parameters: { user_name: "Web User", company: "HDFC Bank", category: "upi_failed", amount_rupees: 4500, incident_date: "2026-09-22", description: "d" } }],
+      }),
+    );
+    await handleVapiWebhook(deps, m({ type: "end-of-call-report", endedReason: "customer-ended-call" }));
+    await deferred.shift()!(); // advocate leg parked for the company browser
+    const claimed = claimWebLeg("company")!;
+    expect(peekWebLegs("company")).toHaveLength(0);
+    expect(releaseWebLeg(claimed.callId)).toBe(true); // mic denied -> ring again
+    expect(peekWebLegs("company").map((l) => l.callId)).toEqual([claimed.callId]);
+    const again = claimWebLeg("company")!;
+    const adv = (x: Record<string, unknown>) => ({ message: { ...x, call: { id: "w2", assistant: { metadata: again.assistant.metadata } } } });
+    await handleVapiWebhook(deps, adv({ type: "status-update", status: "in-progress" }));
+    expect(releaseWebLeg(again.callId)).toBe(false); // it really started: never re-ring
+    expect(releaseWebLeg("nope")).toBe(false);
   });
 });

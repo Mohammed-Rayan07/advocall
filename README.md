@@ -128,4 +128,4 @@ This repo holds the **design and plan** submitted for the Build for Billions 202
 | **Mohammad Rayan** | **Lead Engineer & System Architect**: conceived Advocall, designed the architecture, leads the build |
 | Agastya Shiva | Team Leader: coordination and rights research |
 | Yaso Sairam Karthik Abbaraju | Backend & telephony integration |
-| Vaishnavi Mishra | Dashboard, UX & user research |
+| Vaishnavi | Dashboard, UX & user research |

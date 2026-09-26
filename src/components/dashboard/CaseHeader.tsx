@@ -3,6 +3,7 @@
 import type { CaseView, Lang } from "@/types";
 import StatusBadge from "./StatusBadge";
 import { formatINR, formatDate } from "@/lib/core/format";
+import { t } from "@/content";
 import { User, Calendar, Hash, Globe2 } from "lucide-react";
 
 interface CaseHeaderProps {
@@ -10,7 +11,7 @@ interface CaseHeaderProps {
   lang?: Lang;
 }
 
-export default function CaseHeader({ view }: CaseHeaderProps) {
+export default function CaseHeader({ view, lang = "en" }: CaseHeaderProps) {
   const { case: c } = view;
 
   return (
@@ -24,7 +25,7 @@ export default function CaseHeader({ view }: CaseHeaderProps) {
             <h2 className="text-xl font-bold tracking-tight text-ink">
               {c.company}
             </h2>
-            <StatusBadge status={c.status} />
+            <StatusBadge status={c.status} lang={lang} />
           </div>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2.5 text-xs text-muted">
@@ -35,14 +36,14 @@ export default function CaseHeader({ view }: CaseHeaderProps) {
 
             <span className="inline-flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 text-muted" />
-              <span>Incident: <span className="tabular-nums">{formatDate(c.incidentDate)}</span></span>
+              <span>{t("incident", lang)}: <span className="tabular-nums">{formatDate(c.incidentDate)}</span></span>
             </span>
 
             <span className="inline-flex items-center gap-1.5">
               <Hash className="h-3.5 w-3.5 text-muted" />
-              <span>Ref: </span>
+              <span>{t("reference", lang)}: </span>
               <span className="font-mono text-ink bg-surface-2 px-1.5 py-0.5 rounded border border-line">
-                {c.txnRef ?? "Not provided"}
+                {c.txnRef ?? t("notProvided", lang)}
               </span>
             </span>
 
@@ -57,7 +58,7 @@ export default function CaseHeader({ view }: CaseHeaderProps) {
 
         <div className="flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-line/50 pt-2 sm:pt-0">
           <div className="text-xs font-semibold uppercase tracking-wider text-muted">
-            Amount Disputed
+            {t("amountDisputed", lang)}
           </div>
           <div className="font-mono text-3xl font-bold text-money tracking-tight tabular-nums">
             {formatINR(c.amountPaise)}
@@ -67,7 +68,7 @@ export default function CaseHeader({ view }: CaseHeaderProps) {
 
       {c.description && (
         <div className="pt-3 text-xs text-muted leading-relaxed">
-          <span className="font-medium text-ink">Issue summary: </span>
+          <span className="font-medium text-ink">{t("issue", lang)}: </span>
           {c.description}
         </div>
       )}

@@ -17,7 +17,7 @@ interface TranscriptPanelProps {
 export default function TranscriptPanel({
   lines,
   calls,
-  companyName = "Company",
+  companyName,
   lang = "en",
 }: TranscriptPanelProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -42,15 +42,15 @@ export default function TranscriptPanel({
 
     switch (leg) {
       case "intake":
-        return "Intake Call · User Intake";
+        return t("intakeCall", lang);
       case "advocate":
-        return `Call to ${companyName} · Autonomous Advocate`;
+        return companyName ? `${t("advocateCall", lang)} · ${companyName}` : t("advocateCall", lang);
       case "report":
-        return "Report-back Call · Outcome Delivery";
+        return t("reportCall", lang);
       case "followup":
-        return "Follow-up Call";
+        return t("followupCall", lang);
       default:
-        return "Call Session";
+        return t("callProgress", lang);
     }
   };
 
@@ -64,23 +64,23 @@ export default function TranscriptPanel({
             {t("transcript", lang)}
           </h3>
           <span className="font-mono text-xs text-muted bg-surface-2 px-2 py-0.5 rounded border border-line tabular-nums">
-            {lines.length} lines
+            {lines.length} {t("lines", lang)}
           </span>
         </div>
 
         {/* Legend */}
         <div className="flex items-center gap-2.5 text-xs text-muted hidden sm:flex">
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_6px_#22d3ee]" />
-            <span>Advocall (AI)</span>
+            <span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_6px_var(--color-accent)]" />
+            <span>{t("aiName", lang)}</span>
           </span>
           <span className="flex items-center gap-1">
             <span className="h-2 w-2 rounded-full bg-accent-2" />
-            <span>User</span>
+            <span>{t("user", lang)}</span>
           </span>
           <span className="flex items-center gap-1">
             <span className="h-2 w-2 rounded-full bg-line" />
-            <span>Company</span>
+            <span>{companyName ?? t("company", lang)}</span>
           </span>
         </div>
       </div>
@@ -93,9 +93,9 @@ export default function TranscriptPanel({
         {lines.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6 text-muted">
             <MessageSquare className="h-8 w-8 text-line mb-2" />
-            <p className="text-xs">No conversation dialogue yet.</p>
+            <p className="text-xs">{t("noTranscript", lang)}</p>
             <p className="text-xs text-muted/70 mt-1">
-              Start a demo or place a live call to watch transcripts stream in real-time.
+              {t("noTranscriptHint", lang)}
             </p>
           </div>
         ) : (
@@ -159,10 +159,10 @@ export default function TranscriptPanel({
                       >
                         <span className="font-semibold uppercase tracking-wider">
                           {isAgent
-                            ? "Advocall AI"
+                            ? t("aiName", lang)
                             : isCompany
-                            ? companyName
-                            : "User"}
+                            ? companyName ?? t("company", lang)
+                            : t("user", lang)}
                         </span>
                         {line.at && (
                           <span className="tabular-nums">

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Play, ChevronDown, RotateCcw, Zap, MonitorPlay } from "lucide-react";
 import { t } from "@/content";
 import type { Lang } from "@/types";
+import LiveCallMenu from "./LiveCallMenu";
 
 interface HeaderProps {
   connected: boolean;
@@ -52,19 +53,20 @@ export default function Header({
     { id: "upi", label: "UPI Hero dispute", desc: "Full T+1 TAT & ₹100/day claim", speed: 1 },
     { id: "ecom", label: "E-Commerce return", desc: "30-day refund window", speed: 1 },
     { id: "refusal", label: "Refusal & Escalation", desc: "Company push-back → Ombudsman", speed: 1 },
+    { id: "telecom", label: "Telecom bill dispute", desc: "Airtel overcharge, no legal claim (R3 unverified)", speed: 1 },
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-line bg-bg/95 backdrop-blur px-4 py-3 sm:px-6">
-      <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 w-full border-b border-line bg-bg/95 backdrop-blur px-3 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-2 sm:gap-4">
         {/* Left: Brand + Tagline */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_12px_#22d3ee]" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_12px_var(--color-accent)]" />
             </span>
-            <span className="text-xl font-bold tracking-tight text-ink font-sans">
+            <span className="text-lg sm:text-xl font-bold tracking-tight text-ink font-sans">
               Advocall
             </span>
           </div>
@@ -123,14 +125,14 @@ export default function Header({
             >
               <Play className="h-3.5 w-3.5 fill-current" />
               <span className="hidden sm:inline">{t("startDemo", lang)}</span>
-              <span className="sm:hidden">Demo</span>
+              <span className="sm:hidden">{t("demo", lang)}</span>
               <ChevronDown className="h-3.5 w-3.5" />
             </button>
 
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-64 rounded-card border border-line bg-surface p-1.5 shadow-2xl z-50">
                 <div className="px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted border-b border-line mb-1">
-                  Select Demo Script
+                  {t("chooseDemo", lang)}
                 </div>
                 {demoScripts.map((s, idx) => (
                   <button
@@ -154,19 +156,22 @@ export default function Header({
             )}
           </div>
 
+          {/* Live call (real phone / browser call) */}
+          <LiveCallMenu lang={lang} />
+
           {/* Present button (Projector mode) */}
           <button
             onClick={onTogglePresent}
             title="Toggle presentation mode for projectors (shortcut: P)"
             aria-label="Toggle presentation mode"
-            className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+            className={`hidden sm:inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
               presentMode
                 ? "bg-accent text-bg border-accent shadow-md shadow-accent/20"
                 : "border-line bg-surface text-muted hover:border-accent/40 hover:text-accent"
             }`}
           >
             <MonitorPlay className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Present</span>
+            <span className="hidden sm:inline">{t("present", lang)}</span>
             <span className="hidden lg:inline opacity-75 font-mono ml-0.5">P</span>
           </button>
 

@@ -2,18 +2,22 @@
 
 import { useEffect, useState } from "react";
 import type { Call, AdvocateState, Lang } from "@/types";
+import { t, type StringKey } from "@/content";
 import { ADVOCATE_STATES } from "@/types";
 import { Phone, PhoneCall, CheckCircle2, Clock, Activity } from "lucide-react";
 
 interface CallProgressProps {
   call?: Call & { advocateState: AdvocateState | null };
   calls?: (Call & { advocateState: AdvocateState | null })[];
+  visited?: AdvocateState[]; // states this call really went through (from the event timeline)
   lang?: Lang;
 }
 
 export default function CallProgress({
   call,
   calls = [],
+  visited = [],
+  lang = "en",
 }: CallProgressProps) {
   // Static seconds for ended or completed calls calculated without setState
   const staticSeconds =
@@ -62,18 +66,10 @@ export default function CallProgress({
     ? ADVOCATE_STATES.indexOf(currentState)
     : -1;
 
-  // Labels for the 9 states
-  const stateLabels: Record<AdvocateState, string> = {
-    DISCLOSE: "Disclose",
-    NAVIGATE: "IVR Menu",
-    HOLD: "Hold",
-    STATE_CASE: "State Case",
-    ASK: "Ask Ticket",
-    PUSH_BACK: "Push Back",
-    VERIFY: "Verify",
-    CAPTURE: "Capture",
-    CLOSE: "Close",
-  };
+  // Labels for the 9 states (stepDISCLOSE, stepNAVIGATE, ...)
+  const stateLabel = (s: AdvocateState) => t(`step${s}` as StringKey, lang);
+  const statusLabel = (s: Call["status"]) =>
+    ({ queued: t("queued", lang), ringing: t("ringing", lang), in_progress: t("live", lang), ended: t("done", lang), failed: t("failed", lang) })[s];
 
   // Find intake and report legs
   const intakeCall = calls.find((c) => c.leg === "intake");
@@ -89,10 +85,10 @@ export default function CallProgress({
           </div>
           <div>
             <h3 className="text-sm font-bold text-ink">
-              Advocate Call Progress
+              {t("advocateProgress", lang)}
             </h3>
             <span className="text-xs text-muted">
-              Autonomous IVR &amp; negotiation state machine
+              {t("advocateProgressSub", lang)}
             </span>
           </div>
         </div>
@@ -104,17 +100,17 @@ export default function CallProgress({
               {call.status === "in_progress" ? (
                 <>
                   <span className="h-2 w-2 rounded-full bg-accent animate-pulse-dot" />
-                  <span className="text-accent font-semibold">LIVE</span>
+                  <span className="text-accent font-semibold uppercase">{t("live", lang)}</span>
                 </>
               ) : call.status === "ended" ? (
                 <>
                   <CheckCircle2 className="h-3.5 w-3.5 text-good" />
-                  <span className="text-good font-semibold">COMPLETED</span>
+                  <span className="text-good font-semibold uppercase">{t("done", lang)}</span>
                 </>
               ) : (
                 <>
                   <Clock className="h-3.5 w-3.5 text-muted" />
-                  <span className="text-muted uppercase font-semibold">{call.status}</span>
+                  <span className="text-muted uppercase font-semibold">{statusLabel(call.status)}</span>
                 </>
               )}
               <span className="text-line">|</span>
@@ -128,10 +124,11 @@ export default function CallProgress({
 
       {/* 9-Step Stepper */}
       <div className="relative pt-2">
-        <div className="grid grid-cols-3 sm:grid-cols-9 gap-2 relative z-10">
+        <div className="grid grid-cols-3 sm:grid-cols-9 gap-x-1 gap-y-3 relative z-10">
           {ADVOCATE_STATES.map((step, idx) => {
             const isCurrent = idx === currentIndex && call?.status === "in_progress";
-            const isDone =
+            // A step is done only if the call really passed through it (the refusal demo never reaches CAPTURE).
+            const isDone = visited.length > 0 ? visited.includes(step) && !isCurrent :
               call?.status === "ended" ||
               (currentIndex > -1 && idx < currentIndex);
 
@@ -154,7 +151,7 @@ export default function CallProgress({
                 </div>
 
                 <span
-                  className={`mt-2 text-xs tracking-tight leading-tight line-clamp-1 ${
+                  className={`mt-2 text-[11px] sm:text-[10px] xl:text-xs tracking-tight leading-tight break-words hyphens-auto ${
                     isCurrent
                       ? "text-accent font-bold"
                       : isDone
@@ -162,7 +159,7 @@ export default function CallProgress({
                       : "text-muted"
                   }`}
                 >
-                  {stateLabels[step]}
+                  {stateLabel(step)}
                 </span>
               </div>
             );
@@ -176,38 +173,42 @@ export default function CallProgress({
           {/* Intake Call Chip */}
           <span className="inline-flex items-center gap-1.5 rounded-md bg-surface-2 border border-line px-2.5 py-1 text-xs">
             <Phone className="h-3.5 w-3.5 text-muted" />
-            <span className="text-muted">Intake Call:</span>
+            <span className="text-muted">{t("intakeCall", lang)}:</span>
             {intakeCall ? (
-              <span className="font-semibold text-good">Done</span>
+              intakeCall.status === "ended" ? (
+                <span className="font-semibold text-good">{t("done", lang)}</span>
+              ) : (
+                <span className="font-semibold text-accent">{statusLabel(intakeCall.status)}</span>
+              )
             ) : (
-              <span className="text-muted">Pending</span>
+              <span className="text-muted">{t("pending", lang)}</span>
             )}
           </span>
 
           {/* Report Call Chip */}
           <span className="inline-flex items-center gap-1.5 rounded-md bg-surface-2 border border-line px-2.5 py-1 text-xs">
             <Activity className="h-3.5 w-3.5 text-muted" />
-            <span className="text-muted">Report-back:</span>
+            <span className="text-muted">{t("reportCall", lang)}:</span>
             {reportCall ? (
               reportCall.status === "in_progress" ? (
                 <span className="font-semibold text-accent flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse-dot" />
-                  Active
+                  {t("live", lang)}
                 </span>
               ) : reportCall.status === "ended" ? (
-                <span className="font-semibold text-good">Done</span>
+                <span className="font-semibold text-good">{t("done", lang)}</span>
               ) : (
-                <span className="text-muted capitalize">{reportCall.status}</span>
+                <span className="text-muted">{statusLabel(reportCall.status)}</span>
               )
             ) : (
-              <span className="text-muted">Queued</span>
+              <span className="text-muted">{t("queued", lang)}</span>
             )}
           </span>
         </div>
 
         {call?.outcome && (
           <span className="text-xs text-muted italic">
-            Outcome: <span className="text-ink not-italic">{call.outcome}</span>
+            {t("outcome", lang)}: <span className="text-ink not-italic">{call.outcome}</span>
           </span>
         )}
       </div>

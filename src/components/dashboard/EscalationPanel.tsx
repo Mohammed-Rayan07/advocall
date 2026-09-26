@@ -66,17 +66,17 @@ export default function EscalationPanel({
             </div>
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-ink">
-                Regulator Escalation
+                {t("escalationTitle", lang)}
               </h3>
               <span className="text-xs text-muted">
-                Statutory complaint generator
+                {t("escalationSub", lang)}
               </span>
             </div>
           </div>
         </div>
 
         <p className="text-xs text-muted leading-relaxed">
-          If the company misses the promised turnaround deadline or rejects the legal claim, Advocall automatically drafts a verified complaint letter for the RBI Ombudsman or National Consumer Helpline.
+          {t("escalationHint", lang)}
         </p>
 
         <div className="pt-2">
@@ -89,7 +89,7 @@ export default function EscalationPanel({
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Generating Escalation Packet...</span>
+                <span>{t("preparing", lang)}</span>
               </>
             ) : (
               <>
@@ -113,7 +113,7 @@ export default function EscalationPanel({
           </div>
           <div>
             <span className="text-xs font-mono uppercase tracking-wider text-warn font-semibold">
-              Escalation Packet Ready
+              {t("packetReady", lang)}
             </span>
             <h3 className="text-sm font-bold text-ink">
               {escalation.to}
@@ -130,7 +130,7 @@ export default function EscalationPanel({
               aria-label={`Open online portal for ${escalation.to}`}
               className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 px-2.5 py-1 text-xs text-accent hover:border-accent/40 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             >
-              <span>Portal</span>
+              <span>{t("portal", lang)}</span>
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           )}
@@ -151,7 +151,7 @@ export default function EscalationPanel({
       {escalation.subject && (
         <div className="rounded-lg bg-surface-2 border border-line p-3 text-xs">
           <span className="text-muted block text-xs font-semibold uppercase mb-0.5">
-            Subject
+            {t("subject", lang)}
           </span>
           <span className="text-ink font-medium leading-relaxed">
             {escalation.subject}
@@ -164,7 +164,7 @@ export default function EscalationPanel({
         <div className="space-y-1.5">
           <div className="text-xs font-semibold uppercase tracking-wider text-muted flex items-center gap-1.5">
             <FileText className="h-3.5 w-3.5" />
-            <span>Key Facts Submitted</span>
+            <span>{t("keyFacts", lang)}</span>
           </div>
 
           <div className="rounded-lg border border-line bg-surface-2 overflow-hidden">
@@ -193,7 +193,7 @@ export default function EscalationPanel({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted">
-            Formal Complaint Letter
+            {t("letter", lang)}
           </span>
           <button
             onClick={handleCopy}
@@ -203,12 +203,12 @@ export default function EscalationPanel({
             {copied ? (
               <>
                 <Check className="h-3.5 w-3.5 text-good" />
-                <span className="text-good font-semibold">Copied!</span>
+                <span className="text-good font-semibold">{t("copied", lang)}</span>
               </>
             ) : (
               <>
                 <Copy className="h-3.5 w-3.5" />
-                <span>Copy letter</span>
+                <span>{t("copyLetter", lang)}</span>
               </>
             )}
           </button>

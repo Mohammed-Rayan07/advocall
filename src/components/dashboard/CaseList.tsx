@@ -3,6 +3,7 @@
 import type { CaseView, Lang } from "@/types";
 import StatusBadge from "./StatusBadge";
 import { formatINR, formatDate } from "@/lib/core/format";
+import { t } from "@/content";
 import { Smartphone, ShoppingBag, Wifi, FileText } from "lucide-react";
 
 interface CaseListProps {
@@ -16,6 +17,7 @@ export default function CaseList({
   cases,
   selectedId,
   onSelect,
+  lang = "en",
 }: CaseListProps) {
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -34,9 +36,9 @@ export default function CaseList({
     <div className="space-y-3">
       <div className="flex items-center justify-between px-1">
         <span className="text-xs font-semibold uppercase tracking-wider text-muted">
-          Cases ({cases.length})
+          {t("caseList", lang)} ({cases.length})
         </span>
-        <span className="text-xs text-muted">Newest first</span>
+        <span className="text-xs text-muted">{t("newestFirst", lang)}</span>
       </div>
 
       {/* Horizontal scroll row on mobile (<1024px), vertical list on desktop (>=1024px) */}
@@ -58,7 +60,7 @@ export default function CaseList({
                 <span className="font-mono text-xs font-semibold text-ink">
                   {c.case.id}
                 </span>
-                <StatusBadge status={c.case.status} />
+                <StatusBadge status={c.case.status} lang={lang} />
               </div>
 
               <div className="flex items-center gap-2 mb-2">

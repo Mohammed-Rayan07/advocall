@@ -14,7 +14,9 @@ import EscalationPanel from "./EscalationPanel";
 import TranscriptPanel from "./TranscriptPanel";
 import Timeline from "./Timeline";
 import SmsPreview from "./SmsPreview";
-import type { Lang } from "@/types";
+import RightsCard from "./RightsCard";
+import { t } from "@/content";
+import type { AdvocateState, Lang } from "@/types";
 import { Minimize2, Briefcase, FileText, MessageSquare } from "lucide-react";
 
 export default function Dashboard() {
@@ -61,6 +63,15 @@ export default function Dashboard() {
   }, []);
 
   const advocateCall = selectedCase?.calls.find((c) => c.leg === "advocate");
+  // Steps the advocate call really went through (drives the stepper + the refusal message)
+  const advocateVisited: AdvocateState[] =
+    selectedCase && advocateCall
+      ? selectedCase.timeline.flatMap((e) =>
+          e.type === "call.state" && e.data.callId === advocateCall.id ? [e.data.state] : []
+        )
+      : [];
+  const pushBacks = advocateVisited.filter((s) => s === "PUSH_BACK").length;
+  const compensationApplies = selectedCase?.match?.ruleId === "R1" && !!selectedCase.match.claimable;
 
   return (
     <div className="min-h-screen bg-bg text-ink flex flex-col selection:bg-accent/20 selection:text-accent max-w-full overflow-x-hidden">
@@ -83,14 +94,14 @@ export default function Dashboard() {
           <div className="flex items-center justify-between rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 text-xs">
             <span className="font-semibold text-accent flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-accent animate-pulse-dot" />
-              <span>PROJECTOR PRESENTATION MODE · Focus on live case dialogue and legal rights</span>
+              <span>{t("presentBanner", lang)}</span>
             </span>
             <button
               onClick={() => setPresentMode(false)}
               className="inline-flex items-center gap-1.5 rounded bg-surface px-2.5 py-1 font-mono text-ink border border-line hover:border-accent hover:text-accent transition cursor-pointer"
             >
               <Minimize2 className="h-3.5 w-3.5" />
-              <span>Exit (P / Esc)</span>
+              <span>{t("exitPresent", lang)}</span>
             </button>
           </div>
         )}
@@ -113,7 +124,7 @@ export default function Dashboard() {
               }`}
             >
               <Briefcase className="h-3.5 w-3.5" />
-              <span>Cases</span>
+              <span>{t("caseList", lang)}</span>
               <span
                 className={`ml-1 rounded-full px-1.5 py-0.5 text-xs font-mono ${
                   mobileTab === "cases"
@@ -136,7 +147,7 @@ export default function Dashboard() {
               }`}
             >
               <FileText className="h-3.5 w-3.5" />
-              <span>Details</span>
+              <span>{t("details", lang)}</span>
             </button>
 
             <button
@@ -150,7 +161,7 @@ export default function Dashboard() {
               }`}
             >
               <MessageSquare className="h-3.5 w-3.5" />
-              <span>Transcript</span>
+              <span>{t("chat", lang)}</span>
               {selectedCase && selectedCase.transcript.length > 0 && (
                 <span
                   className={`ml-1 h-1.5 w-1.5 rounded-full ${
@@ -191,13 +202,17 @@ export default function Dashboard() {
                   <CallProgress
                     call={advocateCall}
                     calls={selectedCase.calls}
+                    visited={advocateVisited}
                     lang={lang}
                   />
                   <CommitmentCard
                     commitment={selectedCase.commitment}
                     caseStatus={selectedCase.case.status}
+                    pushBacks={pushBacks}
+                    compensationApplies={compensationApplies}
                     lang={lang}
                   />
+                  <RightsCard view={selectedCase} lang={lang} />
                   <EscalationPanel view={selectedCase} lang={lang} />
                 </>
               )}
@@ -236,13 +251,17 @@ export default function Dashboard() {
                   <CallProgress
                     call={advocateCall}
                     calls={selectedCase.calls}
+                    visited={advocateVisited}
                     lang={lang}
                   />
                   <CommitmentCard
                     commitment={selectedCase.commitment}
                     caseStatus={selectedCase.case.status}
+                    pushBacks={pushBacks}
+                    compensationApplies={compensationApplies}
                     lang={lang}
                   />
+                  <RightsCard view={selectedCase} lang={lang} />
                   <EscalationPanel view={selectedCase} lang={lang} />
                 </>
               )}

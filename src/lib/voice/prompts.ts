@@ -3,6 +3,7 @@
 import type { CaseInput, Commitment, Lang, RuleMatch } from "@/types";
 import type { CallBrief } from "@/lib/rules";
 import { formatDate, formatINR } from "@/lib/core/format";
+import { disclosureLine } from "@/content";
 import { LANG_NAME } from "./voices";
 
 const SAFETY = [
@@ -90,7 +91,7 @@ export function advocateSystemPrompt(input: CaseInput, brief: CallBrief, today: 
     "",
     "HOW THE CALL GOES. Call set_call_state with the new state every time you move to the next step:",
     "- The call may start with a recorded message or an IVR menu. Listen; do not talk over it.",
-    `- DISCLOSE: when a human answers, first say: "Hello, I'm an AI assistant calling on behalf of ${input.userName}, who is available to verify if needed."`,
+    `- DISCLOSE: when a human answers, first say: "${disclosureLine(input.userName)}"`,
     "- NAVIGATE: in an IVR menu, press the right option with the dtmf tool (payments / complaints / refunds / billing).",
     "- HOLD: while on hold, stay silent until a person speaks.",
     "- STATE_CASE: state the facts in two sentences.",

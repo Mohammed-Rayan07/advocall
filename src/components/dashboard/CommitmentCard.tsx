@@ -3,18 +3,22 @@
 import { motion } from "motion/react";
 import type { Commitment, CaseStatus, Lang } from "@/types";
 import { formatDate } from "@/lib/core/format";
-import { t } from "@/content";
+import { fill, t } from "@/content";
 import { Ticket, CheckCircle2, Clock, Sparkles, XCircle, AlertTriangle } from "lucide-react";
 
 interface CommitmentCardProps {
   commitment: Commitment | null;
   caseStatus?: CaseStatus;
+  pushBacks?: number; // how many PUSH_BACK steps the advocate call really made
+  compensationApplies?: boolean; // only the UPI rule has statutory delay compensation
   lang?: Lang;
 }
 
 export default function CommitmentCard({
   commitment,
   caseStatus,
+  pushBacks = 0,
+  compensationApplies = false,
   lang = "en",
 }: CommitmentCardProps) {
   // If company refused to give a ticket and case failed / escalated
@@ -28,25 +32,25 @@ export default function CommitmentCard({
             </div>
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-bad">
-                No Ticket Issued
+                {t("noTicket", lang)}
               </h3>
               <span className="text-xs text-muted">
-                Company refused complaint registration
+                {t("noTicketSub", lang)}
               </span>
             </div>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-bad/15 border border-bad/30 px-2.5 py-0.5 text-xs text-bad font-semibold">
-            Declined
+            {t("declined", lang)}
           </span>
         </div>
 
         <div className="rounded-lg bg-surface border border-bad/20 p-3.5 space-y-1.5 text-xs">
           <div className="flex items-center gap-1.5 text-bad font-semibold">
             <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span>Advocall Safety Protocol Triggered</span>
+            <span>{pushBacks > 0 ? t("safetyLimit", lang) : t("noTicket", lang)}</span>
           </div>
           <p className="text-muted leading-relaxed">
-            The company representative refused to register a formal ticket after 2 polite push-backs. Per safety limits, Advocall ended the call and generated an escalation complaint.
+            {pushBacks > 0 ? fill(t("refusedBody", lang), { n: pushBacks }) : t("unreachedBody", lang)}
           </p>
         </div>
       </div>
@@ -63,24 +67,24 @@ export default function CommitmentCard({
             </div>
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">
-                Formal Commitment
+                {t("commitment", lang)}
               </h3>
               <span className="text-xs text-muted">
-                Official grievance reference
+                {t("officialRef", lang)}
               </span>
             </div>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 border border-line px-2.5 py-0.5 text-xs text-muted font-mono">
             <span className="h-1.5 w-1.5 rounded-full bg-muted animate-pulse" />
-            Awaiting
+            {t("awaiting", lang)}
           </span>
         </div>
 
         <div className="flex flex-col items-center justify-center py-6 text-center text-muted">
           <Sparkles className="h-8 w-8 text-line mb-2 animate-pulse" />
-          <p className="text-xs font-medium">Waiting for ticket number…</p>
+          <p className="text-xs font-medium">{t("waitingTicket", lang)}</p>
           <p className="text-xs text-muted/70 max-w-xs mt-1">
-            Advocall will insist on registering a formal complaint and capture the reference number.
+            {t("insistHint", lang)}
           </p>
         </div>
       </div>
@@ -106,17 +110,17 @@ export default function CommitmentCard({
           </div>
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-good">
-              Formal Commitment Captured
+              {t("commitmentCaptured", lang)}
             </h3>
             <span className="text-xs text-muted">
-              Official company reference
+              {t("officialRef", lang)}
             </span>
           </div>
         </div>
 
         <span className="inline-flex items-center gap-1.5 rounded-full bg-good/20 border border-good/40 px-2.5 py-0.5 text-xs font-semibold text-good">
           <CheckCircle2 className="h-3.5 w-3.5" />
-          Acknowledged
+          {commitment.confirmed ? t("acknowledged", lang) : t("awaiting", lang)}
         </span>
       </div>
 
@@ -131,7 +135,7 @@ export default function CommitmentCard({
       </div>
 
       {/* Commitment Details Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+      <div className={`grid grid-cols-1 gap-3 text-xs ${compensationApplies ? "sm:grid-cols-2" : ""}`}>
         {/* Promised By */}
         <div className="rounded-lg bg-surface border border-line p-3 flex items-center justify-between">
           <span className="text-muted flex items-center gap-1.5">
@@ -139,13 +143,14 @@ export default function CommitmentCard({
             <span>{t("promisedBy", lang)}:</span>
           </span>
           <span className="font-mono font-bold text-ink tabular-nums">
-            {commitment.promisedBy ? formatDate(commitment.promisedBy) : "Immediate"}
+            {commitment.promisedBy ? formatDate(commitment.promisedBy) : t("noDate", lang)}
           </span>
         </div>
 
-        {/* Compensation Acknowledged */}
+        {/* Compensation Acknowledged (only when a statutory delay compensation exists) */}
+        {compensationApplies && (
         <div className="rounded-lg bg-surface border border-line p-3 flex items-center justify-between">
-          <span className="text-muted">Statutory comp:</span>
+          <span className="text-muted">{t("delayComp", lang)}:</span>
           <span
             className={`font-semibold flex items-center gap-1 ${
               commitment.compensationAck ? "text-good" : "text-warn"
@@ -154,23 +159,24 @@ export default function CommitmentCard({
             {commitment.compensationAck ? (
               <>
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                <span>Acknowledged</span>
+                <span>{t("acknowledged", lang)}</span>
               </>
             ) : (
               <>
                 <XCircle className="h-3.5 w-3.5" />
-                <span>Not agreed</span>
+                <span>{t("notAgreed", lang)}</span>
               </>
             )}
           </span>
         </div>
+        )}
       </div>
 
       {/* Confirmed Readback Badge */}
       {commitment.confirmed && (
         <div className="flex items-center justify-center gap-1.5 text-xs text-good font-medium pt-1">
           <CheckCircle2 className="h-3.5 w-3.5" />
-          <span>Ticket read back &amp; verified with company representative</span>
+          <span>{t("readBack", lang)}</span>
         </div>
       )}
     </motion.div>

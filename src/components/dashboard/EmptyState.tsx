@@ -38,29 +38,29 @@ export default function EmptyState({ onDemo, lang = "en" }: EmptyStateProps) {
 
       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-2 border border-line text-xs font-medium text-accent mb-3">
         <Sparkles className="h-3.5 w-3.5" />
-        <span>Autonomous Legal Advocate</span>
+        <span>{t("aiAdvocate", lang)}</span>
       </div>
 
       <h2 className="text-xl font-semibold tracking-tight text-ink max-w-md">
         {t("noCases", lang)}
       </h2>
       <p className="mt-2 text-sm text-muted max-w-lg leading-relaxed">
-        Watch Advocall call customer support, cite statutory RBI &amp; consumer protection turnaround rights, wait on hold, and secure official complaint tickets.
+        {t("emptyHint", lang)}
       </p>
 
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         <button
-          onClick={() => onDemo("quick", 1)}
+          onClick={() => onDemo("upi", 1)}
           className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-bg transition hover:opacity-90 active:scale-95 shadow-md shadow-accent/10 cursor-pointer"
         >
           <Play className="h-4 w-4 fill-current" />
-          <span>{t("startDemo", lang)}</span>
+          <span>{t("runHero", lang)}</span>
         </button>
         <button
           onClick={() => onDemo("quick", 5)}
           className="inline-flex items-center gap-2 rounded-lg bg-surface-2 border border-line px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-line/40 active:scale-95 cursor-pointer"
         >
-          <span>Run Quick (5× speed)</span>
+          <span>{t("runQuick", lang)}</span>
         </button>
       </div>
     </motion.div>

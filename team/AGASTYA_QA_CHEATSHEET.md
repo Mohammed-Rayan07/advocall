@@ -1,41 +1,47 @@
 # Advocall: Judge Q&A Cheat Sheet
-**Author:** Agastya (Rights Engine Lead & Demo Rep)  
-**Usage:** Crisp, authoritative answers for hackathon judges and technical auditors.
+**Author:** Agastya (Rights Engine Lead & Demo Rep) · audited at the checkpoint merge so every answer matches what we actually built
+**Rule for answering:** never claim something the prototype doesn't do. If a judge asks about something we haven't built, say "that's next" plainly.
 
 ---
 
 ### 1. "Isn't this just Pine AI or Google Duplex?"
-**Answer:** No. Duplex makes routine table reservations with no legal stakes, and Pine AI relies on LLM prompts to negotiate. Advocall is a statutory rights enforcement engine: our AI never invents or negotiates law or compensation. 100% of calculations are computed deterministically in code from verified RBI circulars and Gazette rules.
+**Answer:** Duplex books tables; there are no legal stakes. Advocall is built around a **rights engine**: the deadline, days late and compensation are computed in code from two verified official sources (the RBI circular of 20 Sep 2019 and the E-Commerce Rules 2020, Rule 4(5)). The voice AI only receives the result and one approved legal sentence. It doesn't do the maths or pick the law.
 
-### 2. "Is it legal for an AI to call customer care on someone's behalf?"
-**Answer:** Yes. Indian law permits authorized consumer representation under agency principles (Indian Contract Act, 1872). Advocall discloses immediately in the greeting that it is an automated assistant calling on the consumer's behalf with express authorization, preserving full transparency.
+### 2. "Is it okay for an AI to call customer care for someone?"
+**Answer:** The customer asks Advocall to call for them, and Advocall **says it is an AI in its first sentence** and names the customer it's calling for. It never pretends to be the customer. If the company needs identity checks, the customer does those themselves. We're not giving legal advice. We help people ask for what the published rules already say.
 
-### 3. "What if the AI hallucinates and cites the wrong law or penalty?"
-**Answer:** It cannot happen by architecture. The conversational LLM does not generate legal text. Instead, the verified Rights Engine injects verbatim, Gazette-grounded citations (`citeText`) and calculated figures into the call brief. If a rule is unverified or missing, the system defaults to neutral inquiry without making statutory claims.
+### 3. "What if the AI cites the wrong law or a wrong amount?"
+**Answer:** The numbers never come from the AI: they come from the rights engine and are shown on the dashboard, marked "computed by rights engine". The AI is given exactly one approved legal line and told to use only that. If a rule isn't verified (like telecom/TRAI), the engine gives it **no** legal line, and the agent just asks for a complaint number and a date. An LLM can still misspeak, which is why the dashboard, SMS and complaint letter always use the engine's numbers, not the AI's words.
 
-### 4. "How do you handle OTPs, passwords, and sensitive KYC data?"
-**Answer:** We enforce zero-trust financial safety invariants. The advocate agent's strict `mustNot` rules prohibit requesting, accepting, or uttering OTPs, PINs, passwords, CVVs, or card details. If a company representative requires KYC or OTP authentication, Advocall halts and immediately offers to patch in the user.
+### 4. "How do you handle OTPs, passwords and KYC?"
+**Answer:** The agent's hard rules say never ask for, accept or repeat an OTP, PIN, CVV, password or card/account number. If the company insists on verification, Advocall says the customer can verify themselves and asks them to register the complaint anyway. We also only ever dial phone numbers on our team's allowlist in this prototype.
 
 ### 5. "What is the business model?"
-**Answer:** A success-based contingency fee (e.g., 10–15% of statutory compensation recovered that the user would have otherwise forfeited) plus a freemium B2C subscription for frequent online shoppers and commuters. In enterprise B2B, we offer white-label rights automation for neo-banks and fintech apps.
+**Answer:** Free for the first case. Later: a small success fee on compensation recovered that the user would otherwise never have claimed, plus a white-label version for fintech apps and banks that want to resolve complaints faster.
 
-### 6. "How does the system scale beyond 3 case categories?"
-**Answer:** The Rights Engine is completely decoupled and data-driven. Adding a new domain (e.g., airline cancellation delays under DGCA CAR, insurance claim delays under IRDAI) requires only adding a typed rule definition, URL source, and unit tests in `src/lib/rules/data.ts`. The core state machine and call pipeline remain untouched.
+### 6. "How does it scale beyond 3 categories?"
+**Answer:** The rights engine is data-driven: a new area (for example airline refunds or insurance claim delays) is a new rule entry with its official source, deadline logic and tests. The call pipeline and dashboard don't change. We only add a rule after verifying it against the primary source.
 
-### 7. "How accurate is the multilingual translation in Hindi and Kannada?"
-**Answer:** We reject literal machine translation. Our multilingual engine utilizes culturally authentic localized phrasing reviewed for idiomatic accuracy in Indian consumer parlance. All numbers, dates, and amounts are formatted using Indian numbering conventions (`formatINR`).
+### 7. "How good is the Hindi and Kannada?"
+**Answer:** The texts the user hears and reads (report-back call, SMS, UI labels) were written and reviewed by our team (Yaso), not machine-translated word for word. Amounts use Indian formatting (₹4,500) and dates are spoken as dates.
 
-### 8. "What is the operational cost per call?"
-**Answer:** A typical 3-minute voice agent call costs approximately ₹4 to ₹8 using optimized voice and LLM infrastructure. Considering average disputed amounts range from ₹1,000 to ₹10,000 with statutory penalties up to ₹100/day, the unit economics are overwhelmingly positive.
+### 8. "What does a call cost?"
+**Answer:** Roughly **₹15–40 for a 3-minute call** at today's voice-AI rates (speech-to-text + LLM + text-to-speech + telephony). That's an estimate; the exact number depends on the provider. A single case usually involves ₹1,000–₹10,000, plus ₹100/day compensation for late UPI reversals.
 
-### 9. "Why is India the ideal launch market?"
-**Answer:** India executes over 14 billion UPI transactions monthly, but millions of consumers lack the time, knowledge, or persistence to navigate call center IVRs and ombudsman portals. Furthermore, India has explicit statutory delay penalties (like RBI's T+1 compensation) that are clear, quantifiable, and codified.
+### 9. "Why India?"
+**Answer:** UPI handles billions of transactions every month (check NPCI's latest monthly figure before the pitch), failed debits are common, and India has **clear, written turnaround rules with a daily compensation amount**. That makes the rights computable, which is exactly what our engine does.
 
-### 10. "What if the customer care agent hangs up or refuses to register the complaint?"
-**Answer:** Advocall politely pushes back up to two times using statutory citations. If the company still refuses or terminates the call, Advocall records the refusal as an event and instantly compiles an automated, evidence-backed Escalation Packet ready for filing with the RBI Ombudsman or National Consumer Helpline.
+### 10. "What if the company refuses or hangs up?"
+**Answer:** Advocall pushes back politely **at most twice**: the prompt says so, and the server also refuses a third push-back step and tells the agent to close politely. If they still refuse, it ends the call, calls the customer back, and generates a **complaint letter for the regulator** (RBI Ombudsman via cms.rbi.org.in, or the National Consumer Helpline), with a key-facts table. The customer files it: we don't file on their behalf yet.
 
-### 11. "Where is case data stored and how is user privacy protected?"
-**Answer:** All personal identifiers and transaction data are scoped per case and stored in encrypted form with strict data minimization principles. Audio recordings and transcripts are retained only for evidentiary audit trail generation and compliance with India's DPDP Act 2023.
+### 11. "Where is the data stored? Privacy?"
+**Answer (honest for the prototype):** In this prototype, case data lives only in the server's memory and disappears on reset: there's no database. We never collect OTPs, passwords or card numbers. For production: encrypted storage, short retention, explicit consent, and compliance with the DPDP Act 2023.
 
-### 12. "What's next after the hackathon?"
-**Answer:** Direct API integration with the RBI CMS portal and National Consumer Helpline (NCH) for one-click grievance submission, expanding the Rights Engine across healthcare insurance and aviation delays, and rolling out WhatsApp-native voice-note dispute intake.
+### 12. "Does it really send the SMS?"
+**Answer:** Not yet. The dashboard shows the exact SMS text. Sending real SMS in India needs a DLT-registered sender, which is a production step.
+
+### 13. "Is the call on screen real?"
+**Answer:** If we run it live, yes: a real phone call through Vapi, and one of us plays the bank. The scripted demos use the **same pipeline and same events**, just with pre-recorded dialogue, as our backup for stage Wi-Fi. We say which one we're showing.
+
+### 14. "What's next?"
+**Answer:** Real SMS/WhatsApp updates, automatic follow-up when the promised date passes, filing directly on the regulator's portal, more verified rules (telecom/TRAI, airlines, insurance), and warm transfer to the customer when a company insists on speaking to them.

@@ -32,3 +32,14 @@
 1. **Timeline Integration in UI:** `rightsTimeline` is now available from `@/lib/rules`. Would Vaishnavi like a dedicated vertical timeline widget on the Case Detail view, or should it feed into the existing event timeline?
 2. **Multilingual Display:** `rightsSummary(match, case.language)` is ready to be bound directly to the dashboard's summary card so the user sees their rights in Hindi or Kannada based on their selected intake language.
 3. **Ombudsman One-Click API:** Should the escalation packet data structure be exposed as a downloadable `.txt` / `.pdf` button in the UI, or copied to clipboard via a button on the `EscalationCard`?
+
+---
+
+## 4. Final audit (completed by Rayan + Claude Code at the checkpoint merge; Agastya's Opus session was interrupted)
+- **Code:** `timeline.ts`, `summary.ts` and `check.ts` reviewed: correct. `npx tsx src/lib/rules/check.ts` → ALL RULE CHECKS PASSED; `npm run test:rules` green.
+- **Answered open questions:** `rightsTimeline` + `rightsSummary` are now on the dashboard as the **"Your rights timeline"** card (in the selected UI language). The letter stays copy-to-clipboard + the regulator's portal link.
+- **Letter fix:** browser (Plan B) cases have no phone number, so the letter no longer prints "Contact: web."
+- **Docs corrected (overclaims a judge could catch):**
+  - Q&A: removed "encrypted / DPDP compliant" (the prototype keeps data in memory only), "architecturally incapable", the Contract Act legal claim, "patches in the user" (not built), and the ₹4–8/call estimate (realistic: ~₹15–40). Added honest answers for "is the SMS sent?" and "is the call real?".
+  - Pitch: no "Gazette/master directions" (it's an RBI circular + the E-Commerce Rules), no "one-click petition" (the user files the letter), and the numbers read from the screen (they change with the date).
+  - Bank-rep script: now matches the real live flow (Twilio trial key press, **bank speaks first** as the IVR, letter-by-letter ticket, confirm the read-back).

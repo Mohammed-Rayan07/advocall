@@ -390,6 +390,9 @@ describe("browser (web) channel: the no-Twilio fallback", () => {
     resetLive();
     const refusal = await runWeb("refusal");
     expect(skeleton(refusal.events)).toEqual(mockSkeleton(refusalScript));
+    const letter = Object.values(reduceEvents(refusal.events))[0].escalation?.body ?? "";
+    expect(letter).toContain("Advocall case reference");
+    expect(letter).not.toContain("Contact: web"); // browser cases have no phone number
     const view = Object.values(reduceEvents(promise.events))[0];
     expect(view.calls.map((c) => c.to)).toEqual(["web", "web", "web"]);
     expect(view.case.status).toBe("promised");

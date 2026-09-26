@@ -2,14 +2,15 @@
 
 import type { Lang } from "@/types";
 import { formatTime } from "@/lib/core/format";
-import { MessageSquare, Smartphone, CheckCheck } from "lucide-react";
+import { t } from "@/content";
+import { MessageSquare, Smartphone, Info } from "lucide-react";
 
 interface SmsPreviewProps {
   messages: { at: string; to: string; language: Lang; text: string }[];
   lang?: Lang;
 }
 
-export default function SmsPreview({ messages }: SmsPreviewProps) {
+export default function SmsPreview({ messages, lang = "en" }: SmsPreviewProps) {
   const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
 
   return (
@@ -18,7 +19,7 @@ export default function SmsPreview({ messages }: SmsPreviewProps) {
         <div className="flex items-center gap-2">
           <Smartphone className="h-4 w-4 text-accent" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-ink">
-            SMS Dispatched to User
+            {t("smsSent", lang)}
           </h3>
         </div>
         {lastMessage && (
@@ -31,9 +32,9 @@ export default function SmsPreview({ messages }: SmsPreviewProps) {
       {!lastMessage ? (
         <div className="flex flex-col items-center justify-center py-5 text-center text-muted">
           <MessageSquare className="h-6 w-6 text-line mb-1.5" />
-          <p className="text-xs">Awaiting SMS outcome dispatch</p>
+          <p className="text-xs">{t("noSms", lang)}</p>
           <p className="text-xs text-muted/70 mt-0.5">
-            Advocall automatically texts the customer with the ticket number and promised date.
+            {t("smsHint", lang)}
           </p>
         </div>
       ) : (
@@ -55,9 +56,9 @@ export default function SmsPreview({ messages }: SmsPreviewProps) {
           </div>
 
           {/* Delivery receipt status */}
-          <div className="flex items-center justify-end gap-1 text-xs text-good font-medium pt-0.5">
-            <CheckCheck className="h-3.5 w-3.5" />
-            <span>Delivered to handset</span>
+          <div className="flex items-center justify-end gap-1 text-xs text-muted pt-0.5">
+            <Info className="h-3.5 w-3.5 shrink-0" />
+            <span>{t("smsPreviewNote", lang)}</span>
           </div>
         </div>
       )}

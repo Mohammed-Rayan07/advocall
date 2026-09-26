@@ -72,7 +72,8 @@ export function buildEscalationPacket(
     "",
     `I request ${RELIEF[c.category]}.`,
     "",
-    `Advocall case reference: ${c.id}. Contact: ${c.userPhone}.`,
+    // Browser (web) cases have no phone number: never print "Contact: web."
+    /^\+?\d{10,15}$/.test(c.userPhone) ? `Advocall case reference: ${c.id}. Contact: ${c.userPhone}.` : `Advocall case reference: ${c.id}.`,
     "",
     "Yours faithfully,",
     c.userName,

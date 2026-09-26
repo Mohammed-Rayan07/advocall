@@ -2,7 +2,7 @@
 
 import type { RuleMatch, Lang } from "@/types";
 import { formatINR, formatDate } from "@/lib/core/format";
-import { t } from "@/content";
+import { fill, t } from "@/content";
 import { ShieldCheck, ExternalLink, Scale, Clock, AlertTriangle, Coins, Info } from "lucide-react";
 
 interface RuleCardProps {
@@ -38,7 +38,7 @@ export default function RuleCard({
         <div className="flex items-center gap-2 pt-2">
           <Scale className="h-4 w-4 text-muted animate-spin" />
           <span className="text-xs text-muted">
-            Matching statutory rights &amp; regulatory deadlines...
+            {t("matchingRule", lang)}
           </span>
         </div>
       </div>
@@ -98,8 +98,8 @@ export default function RuleCard({
             <span>{t("deadline", lang)}</span>
             <Clock className="h-3.5 w-3.5 text-muted" />
           </div>
-          <div className="font-mono text-xs font-bold text-ink truncate tabular-nums">
-            {match.deadline ? formatDate(match.deadline) : "None"}
+          <div className="font-mono text-xs font-bold text-ink tabular-nums">
+            {match.deadline ? formatDate(match.deadline) : t("none", lang)}
           </div>
         </div>
 
@@ -118,7 +118,7 @@ export default function RuleCard({
               match.daysLate > 0 ? "text-bad font-black" : "text-ink"
             }`}
           >
-            {match.daysLate > 0 ? `${match.daysLate} days late` : "On time"}
+            {match.daysLate === 1 ? t("oneDayLate", lang) : match.daysLate > 1 ? fill(t("nDaysLate", lang), { n: match.daysLate }) : t("onTime", lang)}
           </div>
         </div>
 
@@ -149,13 +149,13 @@ export default function RuleCard({
       <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-line/60">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 border border-accent/30 px-3 py-1 text-xs font-medium text-accent">
           <ShieldCheck className="h-3.5 w-3.5" />
-          <span>Computed by rights engine, not by AI</span>
+          <span>{t("computedByEngine", lang)}</span>
         </span>
 
         {!match.claimable && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 border border-line px-3 py-1 text-xs font-medium text-muted">
             <Info className="h-3.5 w-3.5" />
-            <span>No legal claim, standard complaint only</span>
+            <span>{t("noLegalClaim", lang)}</span>
           </span>
         )}
       </div>

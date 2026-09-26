@@ -1,5 +1,5 @@
 # Advocall Rights Engine: Technical & Legal Architecture
-**Author:** Agastya (Rights Engine Lead)  
+**Author:** Agastya (Rights Engine Lead) · final audit completed at the checkpoint merge  
 **Target Audience:** Hackathon Judges, Technical Auditors, Regulatory Compliance
 
 ---
@@ -12,7 +12,7 @@ Existing consumer automation tools (like Pine AI or generic LLM agents) ask a pr
 - **Compliance risk:** Regulatory bodies (like the Reserve Bank of India or National Consumer Helpline) dismiss complaints citing inaccurate rules or inflated statutory claims.
 
 **Advocall solves this with deterministic separation:**
-The voice LLM acts strictly as a conversational interface that extracts facts. Once extracted, **100% of the legal classification, deadline calculation, and statutory compensation is computed in pure, deterministic TypeScript code** grounded in verified Gazette notifications and central bank circulars. The AI is structurally prohibited from inventing or negotiating money.
+The voice LLM acts strictly as a conversational interface that extracts facts. Once extracted, **100% of the legal classification, deadline calculation, and statutory compensation is computed in pure, deterministic TypeScript code** grounded in two verified official sources (the RBI circular of 20 Sep 2019 and the E-Commerce Rules 2020, Rule 4(5)). The voice AI is only handed the result and one approved legal sentence; it is instructed never to invent a law or an amount.
 
 ---
 
@@ -57,7 +57,7 @@ Provides strict operating instructions for the voice agent before initiating the
 ### C. `buildEscalationPacket(case, match, commitment, today): EscalationPacket`
 When a company fails to honor commitments or breaches statutory deadlines, this generates a ready-to-file legal complaint packet:
 - Targets the appropriate statutory body (e.g., RBI Integrated Ombudsman via CMS portal, or National Consumer Helpline).
-- Produces a formal, factual plain-text legal petition under 250 words referencing case identifiers, transaction references, exact circular citations, and specific relief demanded.
+- Produces a formal, factual plain-text complaint letter (the user files it on the regulator's portal) referencing case identifiers, transaction references, exact circular citations, and specific relief demanded.
 
 ---
 
@@ -86,6 +86,6 @@ Consider a real case processed by the Rights Engine:
 
 ## 4. Key Takeaways for Judges
 
-1. **Grounded in Gazette Law:** No simulated guidelines. Every claim is rooted in active statutory frameworks.
+1. **Grounded in official sources:** Every legal claim links to its source (RBI circular, E-Commerce Rules 2020). Unverified rules (telecom/TRAI) are never cited.
 2. **Zero Financial Hallucination:** Deterministic arithmetic in integer paise guarantees zero mathematical error.
-3. **Consumer Safety First:** Rigid guardrails ensure the caller never surrenders credentials or accepts lowball compromises.
+3. **Consumer safety first:** The agent is told never to ask for or accept OTPs/PINs, never to agree to a settlement, and to push back at most twice (the server also refuses a third push-back step and tells the agent to close).

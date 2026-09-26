@@ -1,8 +1,8 @@
 "use client";
 
-import type { AdvocallEvent, Lang } from "@/types";
+import type { AdvocallEvent, CallLeg, CaseStatus, Lang } from "@/types";
 import { formatTime, formatINR, formatDate } from "@/lib/core/format";
-import { t } from "@/content";
+import { fill, t, type StringKey } from "@/content";
 import {
   FilePlus,
   Activity,
@@ -26,6 +26,13 @@ export default function Timeline({ events, lang = "en" }: TimelineProps) {
   // Newest events at the top
   const sortedEvents = [...events].reverse();
 
+  const leg = (l: CallLeg) =>
+    t(({ intake: "intakeCall", advocate: "advocateCall", report: "reportCall", followup: "followupCall" } as const)[l], lang);
+  const statusName = (s: CaseStatus) => t(`status${s[0].toUpperCase()}${s.slice(1)}` as StringKey, lang);
+
+  const legOf: Record<string, CallLeg> = {};
+  for (const e of events) if (e.type === "call.started") legOf[e.data.call.id] = e.data.call.leg;
+
   const getEventDetails = (event: AdvocallEvent) => {
     switch (event.type) {
       case "case.created":
@@ -33,27 +40,25 @@ export default function Timeline({ events, lang = "en" }: TimelineProps) {
           icon: FilePlus,
           color: "text-accent-2",
           bgColor: "bg-accent-2/15",
-          title: `Case ${event.data.case.id} created`,
-          desc: `${event.data.case.company} · ${formatINR(event.data.case.amountPaise)} disputed`,
+          title: fill(t("evCreated", lang), { id: event.data.case.id }),
+          desc: `${event.data.case.company} · ${formatINR(event.data.case.amountPaise)}`,
         };
       case "case.status":
         return {
           icon: Activity,
           color: "text-accent",
           bgColor: "bg-accent/15",
-          title: `Status changed to ${event.data.status}`,
-          desc: event.data.note ?? "Case lifecycle progression",
+          title: fill(t("evStatus", lang), { s: statusName(event.data.status) }),
+          desc: event.data.note ?? "",
         };
       case "rule.matched":
         return {
           icon: ShieldCheck,
           color: "text-accent",
           bgColor: "bg-accent/15",
-          title: `Rule ${event.data.match.ruleId} matched: ${event.data.match.rule.title}`,
-          desc: `${formatINR(event.data.match.totalAtStakePaise)} at stake · ${
-            event.data.match.claimable
-              ? "Statutory claim confirmed"
-              : "Standard grievance"
+          title: fill(t("evRule", lang), { id: event.data.match.ruleId, title: event.data.match.rule.title }),
+          desc: `${formatINR(event.data.match.totalAtStakePaise)} · ${
+            event.data.match.claimable ? t("evClaimable", lang) : t("evStandard", lang)
           }`,
         };
       case "call.started":
@@ -61,31 +66,33 @@ export default function Timeline({ events, lang = "en" }: TimelineProps) {
           icon: PhoneCall,
           color: "text-accent",
           bgColor: "bg-accent/15",
-          title: `Calling ${event.data.call.to}`,
-          desc: `Voice leg: ${event.data.call.leg} call session initiated`,
+          title: fill(t("evCallStarted", lang), { leg: leg(event.data.call.leg) }),
+          desc: event.data.call.to,
         };
       case "call.state":
         return {
           icon: PhoneForwarded,
           color: "text-accent-2",
           bgColor: "bg-accent-2/15",
-          title: `Advocate state: ${event.data.state}`,
-          desc: "Autonomous negotiation progression",
+          title: fill(t("evState", lang), { s: t(`step${event.data.state}` as StringKey, lang) }),
+          desc: "",
         };
       case "call.ended":
         return {
           icon: CheckCircle2,
           color: event.data.status === "ended" ? "text-good" : "text-bad",
           bgColor: event.data.status === "ended" ? "bg-good/15" : "bg-bad/15",
-          title: `Call concluded (${event.data.status})`,
-          desc: event.data.outcome ?? "Call session ended",
+          title: fill(t(event.data.status === "ended" ? "evCallEnded" : "evCallFailed", lang), {
+            leg: leg(legOf[event.data.callId] ?? "advocate"),
+          }),
+          desc: event.data.outcome ?? "",
         };
       case "transcript":
         return {
           icon: MessageSquare,
           color: "text-muted",
           bgColor: "bg-surface-2",
-          title: `Dialogue (${event.data.line.speaker})`,
+          title: event.data.line.speaker,
           desc: event.data.line.text,
         };
       case "commitment.recorded":
@@ -93,27 +100,25 @@ export default function Timeline({ events, lang = "en" }: TimelineProps) {
           icon: Sparkles,
           color: "text-good",
           bgColor: "bg-good/15",
-          title: `Ticket ${event.data.commitment.ticketNo} captured ✅`,
-          desc: `Promised resolution: ${
-            event.data.commitment.promisedBy
-              ? formatDate(event.data.commitment.promisedBy)
-              : "Immediate"
-          }`,
+          title: fill(t("evTicket", lang), { t: event.data.commitment.ticketNo }),
+          desc: event.data.commitment.promisedBy
+            ? fill(t("evResolutionBy", lang), { d: formatDate(event.data.commitment.promisedBy) })
+            : t("noDate", lang),
         };
       case "escalation.created":
         return {
           icon: AlertTriangle,
           color: "text-warn",
           bgColor: "bg-warn/15",
-          title: `Escalation packet generated`,
-          desc: `Forwarded to ${event.data.packet.to}`,
+          title: t("evEscalation", lang),
+          desc: fill(t("evEscalationTo", lang), { to: event.data.packet.to }),
         };
       case "message.sent":
         return {
           icon: Send,
           color: "text-accent",
           bgColor: "bg-accent/15",
-          title: `SMS dispatched to ${event.data.to}`,
+          title: fill(t("evSms", lang), { to: event.data.to }),
           desc: event.data.text,
         };
       default:
@@ -140,14 +145,14 @@ export default function Timeline({ events, lang = "en" }: TimelineProps) {
           </h3>
         </div>
         <span className="font-mono text-xs text-muted tabular-nums">
-          {meaningfulEvents.length} events
+          {meaningfulEvents.length} {t("events", lang)}
         </span>
       </div>
 
       <div className="max-h-64 overflow-y-auto pr-1 space-y-2.5 scrollbar-thin scrollbar-thumb-line">
         {meaningfulEvents.length === 0 ? (
           <div className="py-6 text-center text-xs text-muted">
-            No events logged yet.
+            {t("noEvents", lang)}
           </div>
         ) : (
           meaningfulEvents.map((event) => {

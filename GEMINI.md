@@ -24,7 +24,10 @@ Read this whole file before writing any code. These rules override your defaults
 | Yaso | `src/mock/**`, `src/content/**` |
 
 At merge time Rayan copies ONLY your folders. **Any change outside your folders is thrown away automatically.**
-If you believe something outside your folder must change, STOP and write the request in `team/REQUESTS_<name>.md` (that file you may create).
+Everyone may ALSO create/edit their own docs in `team/` whose file name starts with their name in capitals, e.g. `team/AGASTYA_QA_CHEATSHEET.md`, `team/YASO_TEST_MATRIX.md`, `team/VAISHNAVI_STATUS.md`.
+If you believe something outside your folder must change, STOP and write the request in `team/<NAME>_REQUESTS.md`.
+
+**Before every commit:** run `git status`. Any changed file outside your folders (AGENTS.md, GEMINI.md, README.md, package-lock.json, tests/, src/types/ ...) must be restored with `git checkout -- <file>` first. Only then commit. Always push to YOUR branch, never to main.
 
 ## 4. Working style
 - Small steps. After every step: run the check the manual gives (`npm run test:...`, `npm run typecheck`, or open the page) and show the result.

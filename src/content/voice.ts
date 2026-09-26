@@ -3,7 +3,7 @@ import type { CaseInput, Lang } from "@/types";
 import { formatDate, formatINR } from "@/lib/core/format";
 
 function spellOut(ref: string): string {
-  return ref.trim().split("").join("-");
+  return ref.trim().replace(/-/g, "").split("").join("-");
 }
 
 /** First thing the AI says when the user calls: greet, say it's Advocall, an AI assistant, ask what happened. */

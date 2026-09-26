@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Play, ChevronDown, RotateCcw, Zap } from "lucide-react";
+import { Play, ChevronDown, RotateCcw, Zap, MonitorPlay } from "lucide-react";
 import { t } from "@/content";
 import type { Lang } from "@/types";
 
@@ -11,6 +11,8 @@ interface HeaderProps {
   onLang: (lang: Lang) => void;
   onDemo: (scriptId: string, speed?: number) => void;
   onReset: () => void;
+  presentMode?: boolean;
+  onTogglePresent?: () => void;
 }
 
 export default function Header({
@@ -19,6 +21,8 @@ export default function Header({
   onLang,
   onDemo,
   onReset,
+  presentMode = false,
+  onTogglePresent,
 }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -145,6 +149,22 @@ export default function Header({
               </div>
             )}
           </div>
+
+          {/* Present button (Projector mode) */}
+          <button
+            onClick={onTogglePresent}
+            title="Toggle presentation mode for projectors (shortcut: P)"
+            aria-label="Toggle presentation mode"
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+              presentMode
+                ? "bg-accent text-bg border-accent shadow-md shadow-accent/20"
+                : "border-line bg-surface text-muted hover:border-accent/40 hover:text-accent"
+            }`}
+          >
+            <MonitorPlay className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Present</span>
+            <span className="hidden lg:inline opacity-75 font-mono ml-0.5">P</span>
+          </button>
 
           {/* Reset button */}
           <button

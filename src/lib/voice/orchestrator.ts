@@ -369,17 +369,17 @@ async function finalize(deps: OrchestratorDeps, call: LiveCall, endedReason: str
   }
 
   if (call.meta.leg === "advocate") {
-    if (call.inProgress) setState(deps, call, "CLOSE");
     const k = lc.commitment;
-    if (k) {
+    const pushBacks = call.states.filter((x) => x === "PUSH_BACK").length;
+    const completed = call.states.at(-1) === "CLOSE" && (k?.confirmed === true || (!k && pushBacks >= 2));
+    if (k && completed) {
       const by = k.promisedBy ? `, resolution by ${formatDate(k.promisedBy)}` : "";
       endCall(`Ticket ${k.ticketNo}${by}${k.compensationAck ? ", compensation acknowledged" : ""}`, "ended");
       status(deps, lc, "promised", `Ticket ${k.ticketNo}`);
-    } else if (failed) {
+    } else if (failed || !completed) {
       endCall(`Call not completed (${endedReason ?? "no answer"})`, "failed");
-      status(deps, lc, "failed", `Could not reach ${lc.case.company}`);
+      status(deps, lc, "failed", completed ? `Could not reach ${lc.case.company}` : "Call ended before the advocate workflow was completed");
     } else {
-      const pushBacks = call.states.filter((x) => x === "PUSH_BACK").length;
       endCall("Company refused to register complaint", "ended");
       status(deps, lc, "failed", pushBacks > 0 ? `Refused after ${pushBacks} push-back${pushBacks === 1 ? "" : "s"}` : "No complaint registered");
     }
@@ -458,8 +458,10 @@ function recordCommitment(deps: OrchestratorDeps, call: LiveCall, args: Record<s
   const lc = call.meta.caseId ? state().cases.get(call.meta.caseId) : undefined;
   if (call.meta.leg !== "advocate" || !lc) return "ERROR: record_commitment is only for the call with the company.";
   const ticketNo = asText(args.ticket_no).toUpperCase().replace(/\s+/g, "");
+  const confirmed = asBool(args.confirmed);
   const rawDate = asText(args.promised_by);
   if (!ticketNo) return "ERROR: ticket_no is empty. Ask them for the complaint number.";
+  if (!confirmed) return "ERROR: the company has not confirmed the read-back. Read the ticket and date back and ask them to confirm before saving.";
   let promisedBy: string | null = null;
   if (rawDate) {
     if (!isValidYmd(rawDate)) return "ERROR: promised_by must be YYYY-MM-DD. Ask them to confirm the exact date.";
@@ -472,10 +474,10 @@ function recordCommitment(deps: OrchestratorDeps, call: LiveCall, args: Record<s
     ticketNo,
     promisedBy,
     compensationAck: asBool(args.compensation_ack),
-    confirmed: asBool(args.confirmed),
+    confirmed,
   };
   deps.emit({ type: "commitment.recorded", caseId: lc.case.id, data: { commitment: { ...lc.commitment } } });
-  return "Saved. Now thank them, say goodbye and end the call.";
+  return "Saved. Say goodbye, call set_call_state with CLOSE, wait for its 'ok' response, then end the call.";
 }
 
 function setCallState(deps: OrchestratorDeps, call: LiveCall, args: Record<string, unknown>): string {
@@ -485,6 +487,17 @@ function setCallState(deps: OrchestratorDeps, call: LiveCall, args: Record<strin
   if (next === "PUSH_BACK" && pushBacks >= 2) {
     log(deps, `WARNING ${call.meta.callId}: third push-back attempted`);
     return "You already pushed back twice. Do not push back again; close the call politely.";
+  }
+  if (next === "CLOSE") {
+    const lc = state().cases.get(call.meta.caseId ?? "");
+    const readyToClose =
+      call.states.includes("DISCLOSE") &&
+      call.states.includes("STATE_CASE") &&
+      call.states.includes("ASK") &&
+      ((lc?.commitment?.confirmed === true && call.states.includes("CAPTURE")) || (!lc?.commitment && pushBacks >= 2));
+    if (!readyToClose) {
+      return "CLOSE is not ready. Complete disclosure, state the case, ask for the ticket and resolution date, then confirm and capture the commitment. If the company refuses, use both allowed push-backs first.";
+    }
   }
   setState(deps, call, next);
   return "ok";

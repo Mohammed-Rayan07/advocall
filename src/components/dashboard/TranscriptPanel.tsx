@@ -21,11 +21,11 @@ export default function TranscriptPanel({
   lang = "en",
 }: TranscriptPanelProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to the bottom whenever a new transcript line arrives
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = scrollContainerRef.current;
+    if (container) container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
   }, [lines.length]);
 
   const getCallDivider = (callId: string) => {
@@ -189,7 +189,6 @@ export default function TranscriptPanel({
             })}
           </AnimatePresence>
         )}
-        <div ref={bottomRef} />
       </div>
     </div>
   );

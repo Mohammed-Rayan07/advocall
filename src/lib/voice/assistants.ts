@@ -97,7 +97,7 @@ export const CREATE_CASE_TOOL: VapiFunctionTool = {
 
 export const SET_CALL_STATE_TOOL: VapiFunctionTool = {
   type: "function",
-  async: true, // fire-and-forget: never makes the agent pause
+  // Synchronous so the agent waits for each progress checkpoint before continuing.
   function: {
     name: "set_call_state",
     description: "Report which step of the call you are in now. Call it every time the step changes.",

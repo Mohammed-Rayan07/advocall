@@ -28,10 +28,28 @@ export interface VapiFunctionTool {
 
 export type VapiTool = VapiFunctionTool | { type: "endCall" } | { type: "dtmf" };
 
+export interface VapiStartSpeakingPlan {
+  waitSeconds?: number;
+  smartEndpointingPlan?: { provider: "vapi" | "livekit" | "off" };
+  transcriptionEndpointingPlan?: {
+    onPunctuationSeconds?: number;
+    onNoPunctuationSeconds?: number;
+    onNumberSeconds?: number;
+  };
+}
+
+export interface VapiStopSpeakingPlan {
+  numWords?: number;
+  voiceSeconds?: number;
+  backoffSeconds?: number;
+  acknowledgementPhrases?: string[];
+}
+
 export interface VapiAssistant {
   name: string;
   firstMessage?: string;
   firstMessageMode: "assistant-speaks-first" | "assistant-waits-for-user";
+  firstMessageInterruptionsEnabled?: boolean;
   model: {
     provider: string;
     model: string;
@@ -41,6 +59,10 @@ export interface VapiAssistant {
   };
   voice: VapiVoice;
   transcriber: VapiTranscriber;
+  startSpeakingPlan?: VapiStartSpeakingPlan;
+  stopSpeakingPlan?: VapiStopSpeakingPlan;
+  silenceTimeoutSeconds?: number;
+  backgroundSound?: "off" | "office";
   server: { url: string; headers?: Record<string, string> };
   serverMessages: string[];
   maxDurationSeconds: number;
@@ -126,6 +148,16 @@ function base(
     },
     voice: VOICES[voiceLang].voice,
     transcriber: VOICES[voiceLang].transcriber,
+    startSpeakingPlan: {
+      waitSeconds: 0.4, // Snappy turn-taking, avoids unnatural awkward silence
+      smartEndpointingPlan: { provider: "vapi" },
+    },
+    stopSpeakingPlan: {
+      numWords: 0,
+      voiceSeconds: 0.2, // Natural, immediate barge-in when user speaks
+      backoffSeconds: 0.8,
+    },
+    firstMessageInterruptionsEnabled: true,
     server,
     serverMessages: SERVER_MESSAGES,
     metadata: { advocall: meta },

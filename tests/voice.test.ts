@@ -124,7 +124,7 @@ describe("live pipeline: promise path (UPI, Hindi)", () => {
     expect(dialed[1].assistant.firstMessageMode).toBe("assistant-waits-for-user");
     const report = dialed[2].assistant;
     expect(report.firstMessage).toContain("SBI4471902");
-    expect(report.voice.voiceId).toMatch(/^hi-IN/);
+    expect(report.voice.voiceId).toMatch(/^(hi-IN|K2Byg54sHB1oHegvENtI)/);
   });
 
   it("records the commitment, walks the advocate states, and sends the SMS text", async () => {

@@ -377,7 +377,12 @@ async function finalize(deps: OrchestratorDeps, call: LiveCall, endedReason: str
       endCall(`Ticket ${k.ticketNo}${by}${k.compensationAck ? ", compensation acknowledged" : ""}`, "ended");
       status(deps, lc, "promised", `Ticket ${k.ticketNo}`);
     } else if (failed || !completed) {
-      endCall(`Call not completed (${endedReason ?? "no answer"})`, "failed");
+      endCall(
+        failed
+          ? "Voice call disconnected before the complaint was captured"
+          : "Call ended before the ticket and resolution date were confirmed",
+        "failed",
+      );
       status(deps, lc, "failed", completed ? `Could not reach ${lc.case.company}` : "Call ended before the advocate workflow was completed");
     } else {
       endCall("Company refused to register complaint", "ended");
@@ -457,6 +462,7 @@ function createCase(deps: OrchestratorDeps, call: LiveCall, args: Record<string,
 function recordCommitment(deps: OrchestratorDeps, call: LiveCall, args: Record<string, unknown>): string {
   const lc = call.meta.caseId ? state().cases.get(call.meta.caseId) : undefined;
   if (call.meta.leg !== "advocate" || !lc) return "ERROR: record_commitment is only for the call with the company.";
+  if (call.ended) return "ERROR: this call has already ended; the commitment was not changed.";
   const ticketNo = asText(args.ticket_no).toUpperCase().replace(/\s+/g, "");
   const confirmed = asBool(args.confirmed);
   const rawDate = asText(args.promised_by);
@@ -477,12 +483,13 @@ function recordCommitment(deps: OrchestratorDeps, call: LiveCall, args: Record<s
     confirmed,
   };
   deps.emit({ type: "commitment.recorded", caseId: lc.case.id, data: { commitment: { ...lc.commitment } } });
-  return "Saved. Say goodbye, call set_call_state with CLOSE, wait for its 'ok' response, then end the call.";
+  return "Saved. Thank the representative, call set_call_state with CLOSE and wait for its 'ok' response. Then say exactly: 'This Advocall company call is now complete. Goodbye.' Do not call an endCall tool.";
 }
 
 function setCallState(deps: OrchestratorDeps, call: LiveCall, args: Record<string, unknown>): string {
   const next = asText(args.state).toUpperCase() as AdvocateState;
   if (call.meta.leg !== "advocate" || !ADVOCATE_STATES.includes(next)) return "ignored";
+  if (call.ended) return "This call has ended; its progress cannot be changed.";
   const pushBacks = call.states.filter((x) => x === "PUSH_BACK").length;
   if (next === "PUSH_BACK" && pushBacks >= 2) {
     log(deps, `WARNING ${call.meta.callId}: third push-back attempted`);

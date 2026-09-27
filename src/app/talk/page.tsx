@@ -115,13 +115,23 @@ function TalkInner() {
         setPhase("live");
       });
       vapi.on("call-end", () => {
+        setError("");
         setPhase("idle");
         setVolume(0);
         vapiRef.current = null;
       });
       vapi.on("volume-level", (v) => setVolume(typeof v === "number" ? v : 0));
       vapi.on("error", (e) => {
-        setError(`Call error: ${JSON.stringify(e).slice(0, 300)}`);
+        const detail = JSON.stringify(e);
+        // Daily emits this teardown event after a normal room hangup; it is not a call failure.
+        if (/meeting has ended/i.test(detail)) {
+          setError("");
+          setPhase("idle");
+          setVolume(0);
+          vapiRef.current = null;
+          return;
+        }
+        setError(`Call error: ${detail.slice(0, 300)}`);
         setPhase((p) => (p === "connecting" ? "idle" : p));
         giveBack();
       });

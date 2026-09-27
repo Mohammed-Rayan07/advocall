@@ -62,6 +62,7 @@ export interface VapiAssistant {
   startSpeakingPlan?: VapiStartSpeakingPlan;
   stopSpeakingPlan?: VapiStopSpeakingPlan;
   silenceTimeoutSeconds?: number;
+  endCallPhrases?: string[];
   backgroundSound?: "off" | "office";
   server: { url: string; headers?: Record<string, string> };
   serverMessages: string[];
@@ -179,11 +180,12 @@ export function advocateAssistant(cfg: VoiceConfig, meta: AdvocallCallMeta, inpu
     name: "advocall-advocate",
     firstMessageMode: "assistant-waits-for-user", // IVR / a human speaks first
     maxDurationSeconds: 600,
+    // The advocate has no model-triggered endCall tool. It can only finish after the guarded CLOSE checkpoint.
+    endCallPhrases: ["This Advocall company call is now complete. Goodbye."],
     ...base(cfg, meta, "en", advocateSystemPrompt(input, brief, today), [
       SET_CALL_STATE_TOOL,
       RECORD_COMMITMENT_TOOL,
       { type: "dtmf" },
-      { type: "endCall" },
     ]),
   };
 }

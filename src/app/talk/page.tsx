@@ -63,12 +63,79 @@ function TalkInner() {
   const [error, setError] = useState("");
   const [volume, setVolume] = useState(0);
   const [muted, setMuted] = useState(false);
+  const [ringtoneEnabled, setRingtoneEnabled] = useState(false);
   const [secure, setSecure] = useState(true);
   const vapiRef = useRef<VapiClient | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const ringtoneOscillatorsRef = useRef<OscillatorNode[]>([]);
 
   useEffect(() => {
     const t = setTimeout(() => setSecure(window.isSecureContext), 0);
     return () => clearTimeout(t);
+  }, []);
+
+  const enableRingtone = useCallback(() => {
+    const AudioContextClass = window.AudioContext;
+    if (!AudioContextClass) {
+      setError("This browser does not support ringtone audio.");
+      return;
+    }
+
+    const context = audioContextRef.current ?? new AudioContextClass();
+    audioContextRef.current = context;
+    void context.resume().then(() => setRingtoneEnabled(true)).catch(() => {
+      setError("Allow sound in this browser, then enable the ringtone again.");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (phase !== "idle" || ringing.length === 0 || !ringtoneEnabled) return;
+    const context = audioContextRef.current;
+    if (!context || context.state !== "running") return;
+
+    let stopped = false;
+    let nextRing = 0;
+    const playTone = (startAt: number) => {
+      for (const frequency of [740, 880]) {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(frequency, startAt);
+        gain.gain.setValueAtTime(0.001, startAt);
+        gain.gain.exponentialRampToValueAtTime(0.11, startAt + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.001, startAt + 0.34);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(startAt);
+        oscillator.stop(startAt + 0.36);
+        ringtoneOscillatorsRef.current.push(oscillator);
+        oscillator.addEventListener("ended", () => {
+          ringtoneOscillatorsRef.current = ringtoneOscillatorsRef.current.filter((active) => active !== oscillator);
+        }, { once: true });
+      }
+    };
+    const ring = () => {
+      if (stopped) return;
+      const startAt = context.currentTime + 0.03;
+      playTone(startAt);
+      playTone(startAt + 0.52);
+      nextRing = window.setTimeout(ring, 2200);
+    };
+
+    ring();
+    return () => {
+      stopped = true;
+      window.clearTimeout(nextRing);
+      for (const oscillator of ringtoneOscillatorsRef.current) oscillator.stop();
+      ringtoneOscillatorsRef.current = [];
+    };
+  }, [phase, ringing.length, ringtoneEnabled]);
+
+  useEffect(() => () => {
+    for (const oscillator of ringtoneOscillatorsRef.current) oscillator.stop();
+    ringtoneOscillatorsRef.current = [];
+    void audioContextRef.current?.close();
+    audioContextRef.current = null;
   }, []);
 
   // Poll for ringing legs while idle.
@@ -202,6 +269,20 @@ function TalkInner() {
         <p className="rounded-card border border-warn p-3 text-sm text-warn">
           The microphone only works on https or localhost. On a second device, open the https tunnel URL (PUBLIC_URL)/talk, not the 10.x address.
         </p>
+      )}
+
+      {phase === "idle" && (
+        <div className="flex items-center justify-between gap-3 rounded-card border border-line bg-surface px-4 py-3">
+          <p className="text-sm text-muted">{ringtoneEnabled ? "Incoming calls will ring in this tab." : "Turn on sound to hear incoming calls."}</p>
+          <button
+            type="button"
+            onClick={() => ringtoneEnabled ? setRingtoneEnabled(false) : enableRingtone()}
+            aria-pressed={ringtoneEnabled}
+            className="shrink-0 rounded border border-accent px-3 py-2 text-sm font-medium text-accent hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            {ringtoneEnabled ? "Mute ringtone" : "Enable ringtone"}
+          </button>
+        </div>
       )}
 
       {phase === "idle" && ringing.length > 0 && (

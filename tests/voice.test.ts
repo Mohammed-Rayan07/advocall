@@ -245,6 +245,8 @@ describe("orchestrator safety", () => {
     await handleVapiWebhook(deps, msg("vapi_1", a, { type: "status-update", status: "in-progress" }));
     await handleVapiWebhook(deps, tool("vapi_1", a, "create_case", goodCase));
     await handleVapiWebhook(deps, msg("vapi_1", a, { type: "status-update", status: "ended", endedReason: "customer-ended-call" }));
+    expect(events.filter((e) => e.type === "call.ended")).toHaveLength(0); // wait for the canonical report
+    expect(deferred).toHaveLength(0);
     await handleVapiWebhook(deps, msg("vapi_1", a, { type: "end-of-call-report", endedReason: "customer-ended-call" }));
     await handleVapiWebhook(deps, msg("vapi_1", a, { type: "end-of-call-report", endedReason: "customer-ended-call" }));
     expect(events.filter((e) => e.type === "call.ended")).toHaveLength(1);
@@ -387,6 +389,7 @@ describe("browser (web) channel: the no-Twilio fallback", () => {
   it("emits the same event skeleton as the mock demos, with no phone dialled", async () => {
     const promise = await runWeb("promise");
     expect(skeleton(promise.events)).toEqual(mockSkeleton(upiScript));
+    expect(promise.assistants.every((assistant) => assistant.customerJoinTimeoutSeconds === 45)).toBe(true);
     resetLive();
     const refusal = await runWeb("refusal");
     expect(skeleton(refusal.events)).toEqual(mockSkeleton(refusalScript));
@@ -396,6 +399,86 @@ describe("browser (web) channel: the no-Twilio fallback", () => {
     const view = Object.values(reduceEvents(promise.events))[0];
     expect(view.calls.map((c) => c.to)).toEqual(["web", "web", "web"]);
     expect(view.case.status).toBe("promised");
+  });
+
+  it("retries a browser company call once when WebRTC never delivers microphone audio", async () => {
+    const events: AdvocallEvent[] = [];
+    const deferred: (() => Promise<void>)[] = [];
+    const deps = makeDeps(events, deferred);
+    const { assistant: intake } = startWebIntake(deps, { lang: "en" });
+    const webhook = (a: VapiAssistant, callId: string, message: Record<string, unknown>) => ({
+      message: { ...message, call: { id: callId, assistant: { metadata: a.metadata } } },
+    });
+
+    await handleVapiWebhook(deps, webhook(intake, "web-intake", { type: "status-update", status: "in-progress" }));
+    await handleVapiWebhook(deps, webhook(intake, "web-intake", {
+      type: "tool-calls",
+      toolCallList: [{ id: "create-case", name: "create_case", parameters: {
+        user_name: "Web User", company: "HDFC Bank", category: "upi_failed", amount_rupees: 4500,
+        incident_date: addDays(TODAY, -4), description: "UPI transfer was debited but not received",
+      } }],
+    }));
+    await handleVapiWebhook(deps, webhook(intake, "web-intake", { type: "end-of-call-report", endedReason: "customer-ended-call" }));
+    await deferred.shift()!(); // parks the first company call for the browser
+
+    const firstAttempt = claimWebLeg("company");
+    expect(firstAttempt?.leg).toBe("advocate");
+    await handleVapiWebhook(deps, webhook(firstAttempt!.assistant, "web-company-1", { type: "status-update", status: "ended" }));
+    expect(events.filter((event) => event.type === "call.ended")).toHaveLength(1); // only the completed intake is ended so far
+    expect(peekWebLegs("company")).toHaveLength(0);
+    await handleVapiWebhook(deps, webhook(firstAttempt!.assistant, "web-company-1", {
+      type: "end-of-call-report", endedReason: "call-in-progress-error-assistant-did-not-receive-customer-audio",
+    }));
+    expect(events.some((event) => event.type === "case.status" && event.data.status === "failed")).toBe(false);
+    expect(deferred).toHaveLength(1);
+
+    await deferred.shift()!(); // retries the advocate leg with a fresh call id
+    const retry = claimWebLeg("company");
+    expect(retry?.leg).toBe("advocate");
+    expect(retry?.callId).not.toBe(firstAttempt?.callId);
+    expect(peekWebLegs("customer")).toHaveLength(0);
+
+    await handleVapiWebhook(deps, webhook(retry!.assistant, "web-company-2", {
+      type: "end-of-call-report", endedReason: "call-in-progress-error-assistant-did-not-receive-customer-audio",
+    }));
+    expect(events.some((event) => event.type === "case.status" && event.data.status === "failed" && event.data.note === "Company browser audio could not connect")).toBe(true);
+    expect(deferred).toHaveLength(1);
+    await deferred.shift()!();
+    expect(peekWebLegs("customer").map((leg) => leg.leg)).toEqual(["report"]);
+  });
+
+  it("does not label a browser audio join failure as the company declining the complaint", async () => {
+    const events: AdvocallEvent[] = [];
+    const deferred: (() => Promise<void>)[] = [];
+    const deps = makeDeps(events, deferred);
+    const { assistant: intake } = startWebIntake(deps, { lang: "en" });
+    const webhook = (a: VapiAssistant, callId: string, message: Record<string, unknown>) => ({
+      message: { ...message, call: { id: callId, assistant: { metadata: a.metadata } } },
+    });
+    await handleVapiWebhook(deps, webhook(intake, "web-intake", { type: "status-update", status: "in-progress" }));
+    await handleVapiWebhook(deps, webhook(intake, "web-intake", {
+      type: "tool-calls",
+      toolCallList: [{ id: "create-case", name: "create_case", parameters: {
+        user_name: "Web User", company: "HDFC Bank", category: "upi_failed", amount_rupees: 4500,
+        incident_date: addDays(TODAY, -4), description: "UPI transfer was debited but not received",
+      } }],
+    }));
+    await handleVapiWebhook(deps, webhook(intake, "web-intake", { type: "end-of-call-report", endedReason: "customer-ended-call" }));
+    await deferred.shift()!();
+
+    const first = claimWebLeg("company")!;
+    const joinError = { type: "end-of-call-report", endedReason: "call-in-progress-error-assistant-did-not-receive-customer-audio" };
+    await handleVapiWebhook(deps, webhook(first.assistant, "web-company-1", joinError));
+    await deferred.shift()!();
+    const retry = claimWebLeg("company")!;
+    await handleVapiWebhook(deps, webhook(retry.assistant, "web-company-2", joinError));
+    const view = Object.values(reduceEvents(events))[0];
+
+    expect(view.case.status).toBe("failed");
+    const outcomes = events.filter((event) => event.type === "call.ended").map((event) => event.data.outcome);
+    expect(outcomes).toContain("Company browser microphone or audio connection failed after one retry");
+    expect(outcomes).not.toContain("Company refused to register complaint");
+    expect(events.some((event) => event.type === "case.status" && event.data.note?.toLowerCase().includes("declin"))).toBe(false);
   });
 
   it("never sends the global webhook secret to a browser; each leg gets its own token", async () => {

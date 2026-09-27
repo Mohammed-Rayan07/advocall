@@ -76,6 +76,7 @@ interface LiveCase {
   match: RuleMatch;
   commitment: Commitment | null;
   finished: boolean;
+  webAdvocateJoinFailures: number;
 }
 
 export interface PendingWebLeg {
@@ -358,6 +359,17 @@ async function finalize(deps: OrchestratorDeps, call: LiveCall, endedReason: str
   const endCall = (outcome: string, st: "ended" | "failed") =>
     deps.emit({ type: "call.ended", caseId: lc.case.id, data: { callId: call.meta.callId, status: st, outcome } });
 
+  const browserAudioJoinFailure = call.channel === "web" && call.meta.leg === "advocate" &&
+    endedReason !== null && /assistant-did-not-receive-customer-audio|customer-did-not-give-microphone-permission/i.test(endedReason);
+  if (browserAudioJoinFailure && lc.webAdvocateJoinFailures < 1) {
+    lc.webAdvocateJoinFailures += 1;
+    endCall("Browser audio did not connect; retrying the company call once", "failed");
+    status(deps, lc, "calling", "Company browser audio did not connect; retrying once");
+    log(deps, `${call.meta.callId} browser audio join failed; retrying advocate call once`);
+    deps.defer(() => dialAdvocate(deps, lc));
+    return;
+  }
+
   if (call.meta.leg === "intake") {
     const ref = lc.case.txnRef ? `, ${lc.case.txnRef}` : "";
     endCall(`Case captured: ${lc.case.company}, ${formatINR(lc.case.amountPaise)}${ref}`, "ended");
@@ -369,6 +381,7 @@ async function finalize(deps: OrchestratorDeps, call: LiveCall, endedReason: str
   }
 
   if (call.meta.leg === "advocate") {
+    const browserAudioRetryExhausted = browserAudioJoinFailure && lc.webAdvocateJoinFailures >= 1;
     const k = lc.commitment;
     const pushBacks = call.states.filter((x) => x === "PUSH_BACK").length;
     const completed = call.states.at(-1) === "CLOSE" && (k?.confirmed === true || (!k && pushBacks >= 2));
@@ -378,12 +391,21 @@ async function finalize(deps: OrchestratorDeps, call: LiveCall, endedReason: str
       status(deps, lc, "promised", `Ticket ${k.ticketNo}`);
     } else if (failed || !completed) {
       endCall(
-        failed
+        browserAudioRetryExhausted
+          ? "Company browser microphone or audio connection failed after one retry"
+          : failed
           ? "Voice call disconnected before the complaint was captured"
           : "Call ended before the ticket and resolution date were confirmed",
         "failed",
       );
-      status(deps, lc, "failed", completed ? `Could not reach ${lc.case.company}` : "Call ended before the advocate workflow was completed");
+      status(
+        deps,
+        lc,
+        "failed",
+        browserAudioRetryExhausted
+          ? "Company browser audio could not connect"
+          : completed ? `Could not reach ${lc.case.company}` : "Call ended before the advocate workflow was completed",
+      );
     } else {
       endCall("Company refused to register complaint", "ended");
       status(deps, lc, "failed", pushBacks > 0 ? `Refused after ${pushBacks} push-back${pushBacks === 1 ? "" : "s"}` : "No complaint registered");
@@ -446,7 +468,7 @@ function createCase(deps: OrchestratorDeps, call: LiveCall, args: Record<string,
   s.caseSeq += 1;
   const id = `A-${String(s.caseSeq).padStart(4, "0")}`;
   const c: Case = { ...input, id, status: "intake", createdAt: call.startedAt, updatedAt: deps.now() };
-  s.cases.set(id, { channel: call.channel, case: c, match, commitment: null, finished: false });
+  s.cases.set(id, { channel: call.channel, case: c, match, commitment: null, finished: false, webAdvocateJoinFailures: 0 });
   call.meta.caseId = id;
 
   deps.emit({ type: "case.created", caseId: id, data: { case: { ...c } } });
@@ -626,7 +648,9 @@ export async function handleVapiWebhook(deps: OrchestratorDeps, body: unknown): 
         call.inProgress = true;
         if (call.meta.leg === "advocate") setState(deps, call, "DISCLOSE");
       } else if (msg.status === "ended") {
-        await finalize(deps, call, msg.call.endedReason);
+        // Vapi sends the richer end-of-call-report after this lifecycle update.
+        // Finalizing here can lose its endedReason/transcript and misclassify a
+        // short browser audio-join timeout as an unanswered company call.
       }
       break;
 

@@ -67,6 +67,7 @@ export interface VapiAssistant {
   server: { url: string; headers?: Record<string, string> };
   serverMessages: string[];
   maxDurationSeconds: number;
+  customerJoinTimeoutSeconds?: number;
   metadata: { advocall: AdvocallCallMeta };
 }
 
@@ -159,6 +160,9 @@ function base(
       backoffSeconds: 0.8,
     },
     firstMessageInterruptionsEnabled: true,
+    // The Vapi default (15s) is too short for a first-time browser caller to grant
+    // microphone permission and finish the WebRTC handshake on a second device.
+    customerJoinTimeoutSeconds: 45,
     server,
     serverMessages: SERVER_MESSAGES,
     metadata: { advocall: meta },
